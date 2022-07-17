@@ -1,0 +1,17 @@
+---
+wrapper:
+  base_url: "https://github.com/hermidalc/snakemake-wrappers/raw"
+
+ref:
+  gtf:
+
+trimming:
+  activate: true
+  dirname: trimmed
+  threads: 8
+
+star:
+  index:
+    threads: 32
+  align:
+    threads: 32
