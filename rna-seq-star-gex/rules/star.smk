@@ -1,9 +1,14 @@
+import re
 from os.path import join
 
 DATA_DIR = "data"
+LOG_DIR = "logs"
 RESULTS_DIR = "results"
 
-STAR_RESULTS_DIR = join(DATA_DIR, "star")
+GTF_FILE = join(DATA_DIR, config["ref"]["gtf"])
+
+STAR_LOG_DIR = join(LOG_DIR, "star")
+STAR_RESULTS_DIR = join(RESULTS_DIR, "star")
 STAR_GENOME_DIR = join(STAR_RESULTS_DIR, "{genome}")
 STAR_OUTPUT_DIR = join(STAR_RESULTS_DIR, "{sample}")
 STAR_PASS1_OUTPUT_DIR = join(STAR_OUTPUT_DIR, "_STARpass1")
@@ -17,60 +22,49 @@ STAR_PASS2_READCOUNT_FILE = join(STAR_PASS2_OUTPUT_DIR, "ReadsPerGene.out.tab")
 STAR_BAM_FILE = join(STAR_PE_OUTPUT_DIR, "Aligned.sortedByCoord.out.bam")
 STAR_READCOUNT_FILE = join(STAR_PE_OUTPUT_DIR, "ReadsPerGene.out.tab")
 
+SAM_ATTR_RG_LINE = "--outSAMattrRGline ID:{sample} PL:Illumina SM:{sample} LB:RNA"
+
+STAR_GENOME_LOG = join(STAR_LOG_DIR, "{genome}.log")
+STAR_ALIGN_LOG = join(STAR_LOG_DIR, "{sample}.log")
+
+
+def get_readlength(wildcards):
+    file = join(READLENGTH_RESULTS_DIR, f"{wildcards.sample}_length.txt")
+    with open(file, "rb") as fh:
+        return fh.readline().strip().replace(" ", "")
+
 
 localrules:
     filter_star_sj_pass1,
 
 
 rule create_star_genome_index:
-    conda:
-        STAR_ENV_FILE
     input:
         STAR_GENOME_FASTA,
     output:
         directory(STAR_GENOME_DIR),
-    threads: 32
-    shell:
-        """
-        mkdir -p '{output}'
-        STAR \
-        --runThreadN {threads} \
-        --runMode genomeGenerate \
-        --genomeDir '{output}' \
-        --genomeFastaFiles '{input}'
-        """
+    threads: config["star"]["index"]["threads"]
+    log:
+        STAR_GENOME_LOG,
+    wrapper:
+        "https://github.com/hermidalc/snakemake-wrappers/tree/main/bio/star/index"
 
 
 rule run_star_pe_pass1:
-    conda:
-        STAR_ENV_FILE
     input:
-        fq1_file=(
-            "{sample}_R1.fastq.gz" if SKIP_TRIMMING else "{sample}_R1.trimmed.fastq.gz"
-        ),
-        fq1_file=(
-            "{sample}_R2.fastq.gz" if SKIP_TRIMMING else "{sample}_R2.trimmed.fastq.gz"
-        ),
-        genome_dir=STAR_GENOME_DIR,
-        gtf_file=config["ref"]["annotation"],
+        unpack(get_fq),
+        index=STAR_GENOME_DIR,
+        gtf=GTF_FILE,
+        extra=f"{SAM_ATTR_RG_LINE} --outSAMtype None",
     output:
         STAR_PASS1_SJ_FILE,
     params:
-        out_dir=join(STAR_PASS1_OUTPUT_DIR, ""),
-        sjdb_overhang=lambda wildcards, input: get_sjdb_overhang(input.metadata),
+        readlength=get_readlength,
     threads: config["star"]["index"]["threads"]
-    shell:
-        """
-        STAR \
-        --runThreadN {threads} \
-        --readFilesIn '{input.fq1}' '{input.fq2}' \
-        --genomeDir '{input.genome_dir}' \
-        --outFileNamePrefix '{params.out_dir}' \
-        --outSAMattrRGline ID:{wildcards.sample} PL:Illumina SM:{wildcards.sample} LB:RNA \
-        --readFilesCommand zcat \
-        --sjdbGTFfile '{input.gtf_file}' \
-        --sjdbOverhang {params.sjdb_overhang}
-        """
+    log:
+        STAR_ALIGN_LOG,
+    wrapper:
+        "https://github.com/hermidalc/snakemake-wrappers/tree/main/bio/star/align"
 
 
 rule run_star_filter_pass1_sj:
@@ -79,8 +73,8 @@ rule run_star_filter_pass1_sj:
     output:
         STAR_PASS1_SJ_FILTERED_FILE,
     run:
-        num_filtered_novel_sj = 0
         num_novel_sj = 0
+        num_filtered_novel_sj = 0
         # chromosomal and non-mitochondrial (regex specific to GTF style!)
         chr_no_mt_regex = re.compile("chr([1-9][0-9]?|X|Y)")
         with open(input, "rb") as f_in:
@@ -106,35 +100,25 @@ rule run_star_filter_pass1_sj:
 
 
 rule run_star_pe_pass2:
-    conda:
-        STAR_ENV_FILE
     input:
-        fq1_file=(
-            "{sample}_R1.fastq.gz" if SKIP_TRIMMING else "{sample}_R1.trimmed.fastq.gz"
+        unpack(get_fq),
+        index=STAR_GENOME_DIR,
+        gtf=GTF_FILE,
+        sjdb=STAR_PASS1_SJ_FILTERED_FILE,
+        extra=(
+            f"--outSAMattrRGline {SAM_ATTR_RG_LINE} "
+            "--outFilterType BySJout "
+            "--outSAMattributes NH HI AS nM NM ch "
+            "--outSAMstrandField intronMotif "
+            "--outSAMtype BAM Unsorted "
+            "--outSAMunmapped Within "
+            "--quantMode ReadCounts "
         ),
-        fq1_file=(
-            "{sample}_R2.fastq.gz" if SKIP_TRIMMING else "{sample}_R2.trimmed.fastq.gz"
-        ),
-        genome_dir=STAR_GENOME_DIR,
-        gtf_file=config["ref"]["annotation"],
-        sj_file=STAR_PASS1_SJ_FILTERED_FILE,
     output:
         bam_file=STAR_PASS2_BAM_FILE,
         count_file=STAR_PASS2_READCOUNT_FILE,
     params:
-        out_dir=join(STAR_PASS2_OUTPUT_DIR, ""),
-        sjdb_overhang=lambda wildcards, input: get_sjdb_overhang(input.metadata),
+        readlength=get_readlength,
     threads: config["star"]["align"]["threads"]
-    shell:
-        """
-        STAR \
-        --runThreadN {threads} \
-        --readFilesIn '{input.fq1}' '{input.fq2}' \
-        --genomeDir '{input.genome_dir}' \
-        --outFileNamePrefix '{params.out_dir}' \
-        --outSAMattrRGline ID:{wildcards.sample} PL:Illumina SM:{wildcards.sample} LB:RNA \
-        --readFilesCommand zcat \
-        --sjdbGTFfile '{input.gtf_file}' \
-        --sjdbOverhang {params.sjdb_overhang} \
-        --sjdbFileChrStartEnd '{input.sj_file}' \
-        """
+    wrapper:
+        "https://github.com/hermidalc/snakemake-wrappers/tree/main/bio/star/align"
