@@ -27,6 +27,9 @@ SAM_ATTR_RG_LINE = "--outSAMattrRGline ID:{sample} PL:Illumina SM:{sample} LB:RN
 STAR_GENOME_LOG = join(STAR_LOG_DIR, "{genome}.log")
 STAR_ALIGN_LOG = join(STAR_LOG_DIR, "{sample}.log")
 
+STAR_GENOME_WRAPPER = join(config["wrapper"]["base_url"], "bio/star/index")
+STAR_ALIGN_WRAPPER = join(config["wrapper"]["base_url"], "bio/star/align")
+
 
 def get_readlength(wildcards):
     file = join(READLENGTH_RESULTS_DIR, f"{wildcards.sample}_length.txt")
@@ -47,7 +50,7 @@ rule create_star_genome_index:
     log:
         STAR_GENOME_LOG,
     wrapper:
-        "https://github.com/hermidalc/snakemake-wrappers/tree/main/bio/star/index"
+        STAR_GENOME_WRAPPER
 
 
 rule run_star_pe_pass1:
@@ -64,7 +67,7 @@ rule run_star_pe_pass1:
     log:
         STAR_ALIGN_LOG,
     wrapper:
-        "https://github.com/hermidalc/snakemake-wrappers/tree/main/bio/star/align"
+        STAR_ALIGN_WRAPPER
 
 
 rule run_star_filter_pass1_sj:
@@ -121,4 +124,4 @@ rule run_star_pe_pass2:
         readlength=get_readlength,
     threads: config["star"]["align"]["threads"]
     wrapper:
-        "https://github.com/hermidalc/snakemake-wrappers/tree/main/bio/star/align"
+        STAR_ALIGN_WRAPPER

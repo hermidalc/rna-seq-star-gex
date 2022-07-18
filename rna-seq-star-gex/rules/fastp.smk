@@ -20,7 +20,7 @@ JSON_REPORT_FILE = join(FASTP_REPORTS_DIR, "{sample}_report.json")
 HTML_REPORT_FILE = join(FASTP_REPORTS_DIR, "{sample}_report.html")
 
 FASTP_LOG = join(FASTP_LOG_DIR, "{sample}.log")
-WRAPPER_URL = join(config["wrapper"]["base_url"], "main/bio/fastp")
+FASTP_WRAPPER = join(config["wrapper"]["base_url"], "main/bio/fastp")
 
 
 rule run_fastp:
@@ -45,4 +45,4 @@ rule run_fastp:
     log:
         FASTP_LOG,
     wrapper:
-        WRAPPER_URL
+        FASTP_WRAPPER

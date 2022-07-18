@@ -14,6 +14,8 @@ READLENGTH_FILE = join(READLENGTH_RESULTS_DIR, "{sample}_length.txt")
 READLENGTH_HISTOGRAM_LOG = join(READLENGTH_LOG_DIR, "{sample}_histogram.log")
 READLENGTH_LOG = join(READLENGTH_LOG_DIR, "{sample}_length.log")
 
+READLENGTH_WRAPPER = join(config["wrapper"]["base_url"], "bio/bbmap/readlength")
+
 
 localrules:
     get_readlength_histogram,
@@ -28,7 +30,7 @@ rule get_readlength_histogram:
     log:
         READLENGTH_HISTOGRAM_LOG,
     wrapper:
-        "https://github.com/hermidalc/snakemake-wrappers/tree/main/bio/bbmap/readlength"
+        READLENGTH_WRAPPER
 
 
 rule get_max_readlength:
