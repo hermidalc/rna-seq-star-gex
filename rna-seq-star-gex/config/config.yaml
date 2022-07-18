@@ -2,8 +2,10 @@
 wrapper:
   base_url: "https://github.com/hermidalc/snakemake-wrappers/raw"
 
-ref:
-  gtf:
+gencode:
+  species: "mouse"
+  version: "M30"
+  build: "GRCm39"
 
 trimming:
   activate: true

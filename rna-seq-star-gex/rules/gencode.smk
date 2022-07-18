@@ -1,46 +1,39 @@
 from os import getcwd
 from os.path import join, splitext
 
-WORK_DIR = getcwd()
-DATA_DIR = join(WORK_DIR, "data")
-GENCODE_DIR = join(DATA_DIR, "gencode")
+DATA_DIR = "data"
+RESULTS_DIR = "results"
 
-GENCODE_BASE_URL = "ftp://ftp.ebi.ac.uk/pub/databases/gencode/"
-GENCODE_MOUSE_VERSION = "M30"
-GENCODE_MOUSE_BUILD = "GRCm39"
+GENCODE_RESULT_DIR = join(RESULTS_DIR, "gencode")
 
-GENCODE_MOUSE_BASE_URL = join(
-    GENCODE_BASE_URL, f"Gencode_mouse/release_{MOUSE_GENCODE_VERSION}"
-)
-GENCODE_MOUSE_GENOME_FASTA_GZ_URL = join(
-    GENCODE_MOUSE_BASE_URL, GENCODE_MOUSE_GENOME_FASTA_GZ_FILENAME
-)
+GENCODE_SPECIES = config["gencode"]["species"]
+GENCODE_RELEASE = config["gencode"]["release"]
+GENCODE_BUILD = config["gencode"]["build"]
 
-GENCODE_MOUSE_GTF_GZ_URL = join(
-    GENCODE_MOUSE_BASE_URL, GENCODE_MOUSE_GENOME_GTF_GZ_FILENAME
+GENCODE_GENOME_FASTA_WRAPPER = join(
+    config["wrapper"]["base_url"], "bio/reference/gencode/sequence"
 )
-
-GENCODE_MOUSE_GENOME_FASTA_FILE = join(
-    GENCODE_DIR, splitext(GENCODE_MOUSE_GENOME_FASTA_GZ_FILENAME)[0]
-)
-GENCODE_MOUSE_GTF_FILE = join(
-    GENCODE_DIR, splitext(GENCODE_MOUSE_GENOME_GTF_GZ_FILENAME)[0]
+GENCODE_GENOME_ANNOT_WRAPPER = join(
+    config["wrapper"]["base_url"], "bio/reference/gencode/annotation"
 )
 
 
 rule download_gencode_genome_fasta:
     params:
-        GENCODE_MOUSE_GENOME_FASTA_GZ_URL,
+        species=GENCODE_SPECIES,
+        release=GENCODE_RELEASE,
+        build=GENCODE_BUILD,
     output:
-        GENCODE_MOUSE_GENOME_FASTA_FILE,
-    shell:
-        "wget -O - {params} | gunzip -c > {output}"
+        GENCODE_GENOME_FASTA_FILE,
+    wrapper:
+        GENCODE_GENOME_FASTA_WRAPPER
 
 
-rule download_gencode_gtf:
+rule download_gencode_genome_annot:
     params:
-        GENCODE_MOUSE_GTF_GZ_URL,
+        species=GENCODE_SPECIES,
+        release=GENCODE_RELEASE,
     output:
-        GENCODE_MOUSE_GTF_FILE,
-    shell:
-        "wget -O - {params} | gunzip -c > {output}"
+        GENCODE_GENOME_ANNOT_FILE,
+    wrapper:
+        GENCODE_GENOME_ANNOT_WRAPPER
