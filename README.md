@@ -1,3 +1,3 @@
 # snakemake-workflows
 
-Snakemake computational analysis workflows built from wrapper modular components and additional tools.
+Snakemake computational analysis workflows built from modular wrappers components and additional tools.
