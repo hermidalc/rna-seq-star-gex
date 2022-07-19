@@ -1,3 +1,3 @@
-# smk-rna-seq-star-gex
+# rna-seq-star-gex
 
 RNA-seq STAR gene expression analysis Snakemake workflow
