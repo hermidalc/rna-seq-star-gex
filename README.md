@@ -1,3 +1,3 @@
-# snakemake-workflows
+# smk-rna-seq-star-gex
 
-Snakemake computational analysis workflows built from modular tool wrappers and additional tools.
+RNA-seq STAR gene expression analysis Snakemake workflow
