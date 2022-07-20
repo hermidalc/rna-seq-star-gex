@@ -19,5 +19,6 @@ scripts/.snakemake*
 !.gitignore
 !.editorconfig
 !.gitattributes
+!.snakemake-workflow-catalog.yaml
 !.test
 !.test/data
