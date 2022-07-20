@@ -1,40 +1,11 @@
 import re
 from os.path import join
 
-DATA_DIR = "data"
-LOG_DIR = "logs"
-RESULTS_DIR = "results"
-
-GTF_FILE = join(DATA_DIR, config["ref"]["gtf"])
-
-STAR_LOG_DIR = join(LOG_DIR, "star")
-STAR_RESULTS_DIR = join(RESULTS_DIR, "star")
-STAR_GENOME_DIR = join(STAR_RESULTS_DIR, "{genome}")
-STAR_OUTPUT_DIR = join(STAR_RESULTS_DIR, "{sample}")
-STAR_PASS1_OUTPUT_DIR = join(STAR_OUTPUT_DIR, "_STARpass1")
-STAR_PASS2_OUTPUT_DIR = join(STAR_OUTPUT_DIR, "_STARpass2")
-
-STAR_PASS1_SJ_FILE = join(STAR_PASS1_OUTPUT_DIR, "SJ.out.tab")
-STAR_PASS1_SJ_FILTERED_FILE = join(STAR_PASS1_OUTPUT_DIR, "SJ.filtered.out.tab")
-
-STAR_PASS2_BAM_FILE = join(STAR_PASS2_OUTPUT_DIR, "Aligned.sortedByCoord.out.bam")
-STAR_PASS2_READCOUNT_FILE = join(STAR_PASS2_OUTPUT_DIR, "ReadsPerGene.out.tab")
-STAR_BAM_FILE = join(STAR_PE_OUTPUT_DIR, "Aligned.sortedByCoord.out.bam")
-STAR_READCOUNT_FILE = join(STAR_PE_OUTPUT_DIR, "ReadsPerGene.out.tab")
-
-SAM_ATTR_RG_LINE = "--outSAMattrRGline ID:{sample} PL:Illumina SM:{sample} LB:RNA"
-
-STAR_GENOME_LOG = join(STAR_LOG_DIR, "{genome}.log")
-STAR_ALIGN_LOG = join(STAR_LOG_DIR, "{sample}.log")
-
-STAR_GENOME_WRAPPER = join(config["wrapper"]["base_url"], "bio/star/index")
-STAR_ALIGN_WRAPPER = join(config["wrapper"]["base_url"], "bio/star/align")
-
 
 def get_readlength(wildcards):
     file = join(READLENGTH_RESULTS_DIR, f"{wildcards.sample}_length.txt")
     with open(file, "rb") as fh:
-        return fh.readline().strip().replace(" ", "")
+        return re.sub("\D+", "", fh.readline())
 
 
 localrules:
@@ -43,7 +14,7 @@ localrules:
 
 rule create_star_genome_index:
     input:
-        STAR_GENOME_FASTA,
+        GENCODE_GENOME_SEQ_FILE,
     output:
         directory(STAR_GENOME_DIR),
     threads: config["star"]["index"]["threads"]
@@ -53,11 +24,11 @@ rule create_star_genome_index:
         STAR_GENOME_WRAPPER
 
 
-rule run_star_pe_pass1:
+rule run_star_align_pass1:
     input:
         unpack(get_fq),
         index=STAR_GENOME_DIR,
-        gtf=GTF_FILE,
+        gtf=GENCODE_GENOME_ANNOT_FILE,
         extra=f"{SAM_ATTR_RG_LINE} --outSAMtype None",
     output:
         STAR_PASS1_SJ_FILE,
@@ -65,7 +36,7 @@ rule run_star_pe_pass1:
         readlength=get_readlength,
     threads: config["star"]["index"]["threads"]
     log:
-        STAR_ALIGN_LOG,
+        STAR_ALIGN_PASS1_LOG,
     wrapper:
         STAR_ALIGN_WRAPPER
 
@@ -75,6 +46,8 @@ rule run_star_filter_pass1_sj:
         STAR_PASS1_SJ_FILE,
     output:
         STAR_PASS1_SJ_FILTERED_FILE,
+    log:
+        STAR_PASS1_SJ_FILTERED_LOG,
     run:
         num_novel_sj = 0
         num_filtered_novel_sj = 0
@@ -102,18 +75,18 @@ rule run_star_filter_pass1_sj:
                         num_filtered_novel_sj += 1
 
 
-rule run_star_pe_pass2:
+rule run_star_align_pass2:
     input:
         unpack(get_fq),
         index=STAR_GENOME_DIR,
-        gtf=GTF_FILE,
+        gtf=GENCODE_GENOME_ANNOT_FILE,
         sjdb=STAR_PASS1_SJ_FILTERED_FILE,
         extra=(
             f"--outSAMattrRGline {SAM_ATTR_RG_LINE} "
             "--outFilterType BySJout "
             "--outSAMattributes NH HI AS nM NM ch "
             "--outSAMstrandField intronMotif "
-            "--outSAMtype BAM Unsorted "
+            f"--outSAMtype BAM {STAR_BAM_SORT} "
             "--outSAMunmapped Within "
             "--quantMode ReadCounts "
         ),
@@ -122,6 +95,8 @@ rule run_star_pe_pass2:
         count_file=STAR_PASS2_READCOUNT_FILE,
     params:
         readlength=get_readlength,
+    log:
+        STAR_ALIGN_PASS2_LOG,
     threads: config["star"]["align"]["threads"]
     wrapper:
         STAR_ALIGN_WRAPPER

@@ -1,0 +1,141 @@
+from os.path import join, splitext
+
+
+configfile: "config/config.yaml"
+
+
+DATA_DIR = "data"
+LOG_DIR = "logs"
+RESOURCES_DIR = "resources"
+RESULTS_DIR = "results"
+
+GENCODE_RESOURCES_DIR = join(RESOURCES_DIR, "gencode")
+
+GENCODE_SPECIES = config["gencode"]["species"]
+GENCODE_RELEASE = config["gencode"]["release"]
+GENCODE_BUILD = config["gencode"]["build"]
+GENCODE_REGIONS = config["gencode"]["regions"]
+GENCODE_ANNOT_FMT = config["gencode"]["annot"]["fmt"]
+
+GENCODE_GENOME_NAME = f"gencode_v{GENCODE_RELEASE}_{GENCODE_BUILD}"
+
+GENCODE_GENOME_SEQ_GZ_FILE = join(GENCODE_RESOURCES_DIR, f"{GENCODE_GENOME_NAME}.fa.gz")
+GENCODE_GENOME_ANNOT_GZ_FILE = join(
+    GENCODE_RESOURCES_DIR, f"{GENCODE_GENOME_NAME}.{GENCODE_ANNOT_FMT.lower()}.gz"
+)
+GENCODE_GENOME_SEQ_FILE = GENCODE_GENOME_SEQ_GZ_FILE[:-3]
+GENCODE_GENOME_ANNOT_FILE = GENCODE_GENOME_ANNOT_GZ_FILE[:-3]
+
+GENCODE_GENOME_SEQ_WRAPPER = join(
+    config["wrapper"]["base_url"], "bio/reference/gencode/sequence"
+)
+GENCODE_GENOME_ANNOT_WRAPPER = join(
+    config["wrapper"]["base_url"], "bio/reference/gencode/annotation"
+)
+
+FASTQ_PREFIX_WILDCARD_STR = config["fastq"]["prefix_wildcard_str"]
+FASTQ_PAIRS = config["fastq"]["pairs"]
+FASTQ_PLATFORM = config["fastq"]["platform"]
+
+FASTQ_DATA_DIR = join(DATA_DIR, "fastq")
+TRIMMED_RESULTS_DIR = join(RESULTS_DIR, config["trimming"]["dirname"])
+FASTP_LOG_DIR = join(LOG_DIR, "fastp")
+
+FASTQ1_FILE = join(
+    FASTQ_DATA_DIR, f"{FASTQ_PREFIX_WILDCARD_STR}_{FASTQ_PAIRS[0]}.fastq.gz"
+)
+FASTQ2_FILE = join(
+    FASTQ_DATA_DIR, f"{FASTQ_PREFIX_WILDCARD_STR}_{FASTQ_PAIRS[1]}.fastq.gz"
+)
+TRIMMED_FASTQ1_FILE = join(
+    TRIMMED_RESULTS_DIR,
+    f"{FASTQ_PREFIX_WILDCARD_STR}_{FASTQ_PAIRS[0]}.trimmed.fastq.gz",
+)
+TRIMMED_FASTQ2_FILE = join(
+    TRIMMED_RESULTS_DIR,
+    f"{FASTQ_PREFIX_WILDCARD_STR}_{FASTQ_PAIRS[1]}.trimmed.fastq.gz",
+)
+TRIMMED_UNPAIR2_FILE = join(
+    TRIMMED_RESULTS_DIR, f"{FASTQ_PREFIX_WILDCARD_STR}_U1.trimmed.fastq.gz"
+)
+TRIMMED_UNPAIR1_FILE = join(
+    TRIMMED_RESULTS_DIR, f"{FASTQ_PREFIX_WILDCARD_STR}_U2.trimmed.fastq.gz"
+)
+FAILED_READS_FILE = join(
+    TRIMMED_RESULTS_DIR, f"{FASTQ_PREFIX_WILDCARD_STR}.failed.fastq.gz"
+)
+FASTP_HTML_REPORT_FILE = join(
+    TRIMMED_RESULTS_DIR, f"{FASTQ_PREFIX_WILDCARD_STR}_report.html"
+)
+FASTP_JSON_REPORT_FILE = join(
+    TRIMMED_RESULTS_DIR, f"{FASTQ_PREFIX_WILDCARD_STR}_report.json"
+)
+
+FASTP_LOG = join(FASTP_LOG_DIR, f"{FASTQ_PREFIX_WILDCARD_STR}.log")
+FASTP_WRAPPER = join(config["wrapper"]["base_url"], "main/bio/fastp")
+
+READLENGTH_LOG_DIR = join(LOG_DIR, "readlength")
+READLENGTH_RESULTS_DIR = join(RESULTS_DIR, "readlength")
+
+READLENGTH_HISTOGRAM_FILE = join(
+    READLENGTH_RESULTS_DIR, f"{FASTQ_PREFIX_WILDCARD_STR}_histogram.tsv"
+)
+READLENGTH_FILE = join(
+    READLENGTH_RESULTS_DIR, f"{FASTQ_PREFIX_WILDCARD_STR}_length.txt"
+)
+
+READLENGTH_HISTOGRAM_LOG = join(
+    READLENGTH_LOG_DIR, f"{FASTQ_PREFIX_WILDCARD_STR}_histogram.log"
+)
+READLENGTH_LOG = join(READLENGTH_LOG_DIR, f"{FASTQ_PREFIX_WILDCARD_STR}_length.log")
+
+READLENGTH_WRAPPER = join(config["wrapper"]["base_url"], "bio/bbmap/readlength")
+
+STAR_LOG_DIR = join(LOG_DIR, "star")
+STAR_RESOURCES_DIR = join(RESOURCES_DIR, "star")
+STAR_RESULTS_DIR = join(RESULTS_DIR, "star")
+STAR_GENOME_DIR = join(STAR_RESOURCES_DIR, GENCODE_GENOME_NAME)
+STAR_OUTPUT_DIR = join(STAR_RESULTS_DIR, GENCODE_GENOME_NAME, FASTQ_PREFIX_WILDCARD_STR)
+STAR_PASS1_OUTPUT_DIR = join(STAR_OUTPUT_DIR, "_STARpass1")
+STAR_PASS2_OUTPUT_DIR = join(STAR_OUTPUT_DIR, "_STARpass2")
+STAR_OUTPUT_LOG_DIR = join(STAR_LOG_DIR, GENCODE_GENOME_NAME, FASTQ_PREFIX_WILDCARD_STR)
+
+STAR_PASS1_SJ_FILE = join(STAR_PASS1_OUTPUT_DIR, "SJ.out.tab")
+STAR_PASS1_SJ_FILTERED_FILE = join(STAR_PASS1_OUTPUT_DIR, "SJ.filtered.out.tab")
+
+STAR_PASS2_BAM_FILE = join(
+    STAR_PASS2_OUTPUT_DIR,
+    "Aligned.sortedByCoord.out.bam"
+    if config["star"]["align"]["sort_bam"]
+    else "Aligned.out.bam",
+)
+STAR_PASS2_READCOUNT_FILE = join(STAR_PASS2_OUTPUT_DIR, "ReadsPerGene.out.tab")
+
+SAM_ATTR_RG_LINE = (
+    f"ID:{FASTQ_PREFIX_WILDCARD_STR} PL:{FASTQ_PLATFORM} "
+    f"SM:{FASTQ_PREFIX_WILDCARD_STR} LB:RNA"
+)
+STAR_BAM_SORT = (
+    "SortedByCoordinate" if config["star"]["align"]["sort_bam"] else "Unsorted"
+)
+
+STAR_GENOME_LOG = join(STAR_LOG_DIR, GENCODE_GENOME_NAME, "genome_index.log")
+STAR_PASS1_SJ_FILTERED_LOG = join(STAR_OUTPUT_LOG_DIR, "filter_pass1_sj.log")
+STAR_ALIGN_PASS1_LOG = join(STAR_OUTPUT_LOG_DIR, "align_pass1.log")
+STAR_ALIGN_PASS2_LOG = join(STAR_OUTPUT_LOG_DIR, "align_pass2.log")
+
+STAR_GENOME_WRAPPER = join(config["wrapper"]["base_url"], "bio/star/index")
+STAR_ALIGN_WRAPPER = join(config["wrapper"]["base_url"], "bio/star/align")
+
+
+include: "rules/common.smk"
+include: "rules/fastp.smk"
+include: "rules/gencode.smk"
+include: "rules/readlength.smk"
+include: "rules/star.smk"
+
+
+rule all:
+    input:
+        GENCODE_GENOME_SEQ_FILE,
+        GENCODE_GENOME_ANNOT_FILE,

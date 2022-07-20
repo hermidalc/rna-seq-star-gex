@@ -1,19 +1,31 @@
 ---
 wrapper:
-  base_url: "https://github.com/hermidalc/snakemake-wrappers/raw"
+  base_url: "file:///home/hermidalc/projects/github/hermidalc/snakemake-wrappers/"
+
+samples: "config/samples.tsv"
+units: "config/units.tsv"
 
 gencode:
   species: "mouse"
-  version: "M30"
+  release: "M30"
   build: "GRCm39"
+  regions: "ALL"
+  annot:
+    fmt: "gtf"
+
+fastq:
+  prefix_wildcard_str: "{sample}"
+  pairs: ["R1_001", "R2_001"]
+  platform: "Illumina"
 
 trimming:
   activate: true
-  dirname: trimmed
+  dirname: "trimmed"
   threads: 8
 
 star:
   index:
     threads: 32
   align:
+    sort_bam: true
     threads: 32
