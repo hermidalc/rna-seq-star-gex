@@ -9,7 +9,7 @@ gencode:
   species: "mouse"
   release: "M30"
   build: "GRCm39"
-  regions: "ALL"
+  regions: "PRI"
   annot:
     fmt: "gtf"
 
