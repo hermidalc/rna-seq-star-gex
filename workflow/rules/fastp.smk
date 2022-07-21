@@ -1,4 +1,3 @@
-
 rule run_trim_fastp:
     input:
         unpack(get_source_fq),

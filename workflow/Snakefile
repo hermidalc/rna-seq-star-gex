@@ -1,3 +1,4 @@
+import re
 from os import mkdir
 from os.path import exists, join, splitext
 
@@ -38,10 +39,8 @@ FASTQ_PAIRS = config["fastq"]["pairs"]
 FASTQ_PLATFORM = config["fastq"]["platform"]
 
 FASTQ_DATA_DIR = join(DATA_DIR, "fastq")
-FASTP_RESULTS_DIR = join(RESULTS_DIR, "fastp")
+TRIMMED_RESULTS_DIR = join(RESULTS_DIR, "fastp", FASTQ_PREFIX_WILDCARD_STR)
 FASTP_LOG_DIR = join(LOG_DIR, "fastp")
-
-TRIMMED_RESULTS_DIR = join(FASTP_RESULTS_DIR, FASTQ_PREFIX_WILDCARD_STR)
 
 FASTQ1_FILE = join(
     FASTQ_DATA_DIR, f"{FASTQ_PREFIX_WILDCARD_STR}_{FASTQ_PAIRS[0]}.fastq.gz"
@@ -51,17 +50,17 @@ FASTQ2_FILE = join(
 )
 TRIMMED_FASTQ1_FILE = join(
     TRIMMED_RESULTS_DIR,
-    f"{FASTQ_PREFIX_WILDCARD_STR}_{FASTQ_PAIRS[0]}.trimmed.fastq.gz",
+    f"{FASTQ_PREFIX_WILDCARD_STR}_{FASTQ_PAIRS[0]}.fastq.gz",
 )
 TRIMMED_FASTQ2_FILE = join(
     TRIMMED_RESULTS_DIR,
-    f"{FASTQ_PREFIX_WILDCARD_STR}_{FASTQ_PAIRS[1]}.trimmed.fastq.gz",
+    f"{FASTQ_PREFIX_WILDCARD_STR}_{FASTQ_PAIRS[1]}.fastq.gz",
 )
 TRIMMED_UNPAIR2_FILE = join(
-    TRIMMED_RESULTS_DIR, f"{FASTQ_PREFIX_WILDCARD_STR}_U1.trimmed.fastq.gz"
+    TRIMMED_RESULTS_DIR, f"{FASTQ_PREFIX_WILDCARD_STR}_U1.fastq.gz"
 )
 TRIMMED_UNPAIR1_FILE = join(
-    TRIMMED_RESULTS_DIR, f"{FASTQ_PREFIX_WILDCARD_STR}_U2.trimmed.fastq.gz"
+    TRIMMED_RESULTS_DIR, f"{FASTQ_PREFIX_WILDCARD_STR}_U2.fastq.gz"
 )
 FAILED_READS_FILE = join(
     TRIMMED_RESULTS_DIR, f"{FASTQ_PREFIX_WILDCARD_STR}.failed.fastq.gz"
@@ -97,10 +96,10 @@ STAR_LOG_DIR = join(LOG_DIR, "star")
 STAR_RESOURCES_DIR = join(RESOURCES_DIR, "star")
 STAR_RESULTS_DIR = join(RESULTS_DIR, "star")
 STAR_GENOME_DIR = join(STAR_RESOURCES_DIR, GENCODE_GENOME_NAME)
-STAR_OUTPUT_DIR = join(STAR_RESULTS_DIR, GENCODE_GENOME_NAME, FASTQ_PREFIX_WILDCARD_STR)
+STAR_OUTPUT_DIR = join(STAR_RESULTS_DIR, FASTQ_PREFIX_WILDCARD_STR)
 STAR_PASS1_OUTPUT_DIR = join(STAR_OUTPUT_DIR, "_STARpass1")
 STAR_PASS2_OUTPUT_DIR = join(STAR_OUTPUT_DIR, "_STARpass2")
-STAR_OUTPUT_LOG_DIR = join(STAR_LOG_DIR, GENCODE_GENOME_NAME, FASTQ_PREFIX_WILDCARD_STR)
+STAR_OUTPUT_LOG_DIR = join(STAR_LOG_DIR, FASTQ_PREFIX_WILDCARD_STR)
 
 STAR_PASS1_SJ_FILE = join(STAR_PASS1_OUTPUT_DIR, "SJ.out.tab")
 STAR_PASS1_SJ_FILTERED_FILE = join(STAR_PASS1_OUTPUT_DIR, "SJ.filtered.out.tab")
@@ -131,8 +130,8 @@ STAR_ALIGN_WRAPPER = join(config["wrapper"]["base_url"], "bio/star/align")
 
 
 include: "rules/common.smk"
-include: "rules/fastp.smk"
 include: "rules/gencode.smk"
+include: "rules/fastp.smk"
 include: "rules/readlength.smk"
 include: "rules/star.smk"
 
@@ -140,17 +139,20 @@ include: "rules/star.smk"
 if not exists(LOG_DIR):
     mkdir(LOG_DIR, mode=0o755)
 
+SAMPLES = units.sample_name.tolist()
+UNITS = units.unit_name.tolist()
+
+
+wildcard_constraints:
+    sample="|".join(set([re.escape(s) for s in SAMPLES])),
+    unit="|".join(set([re.escape(u) for u in UNITS])),
+
 
 rule all:
     input:
         GENCODE_GENOME_SEQ_FILE,
         GENCODE_GENOME_ANNOT_FILE,
-        expand(
-            TRIMMED_FASTQ1_FILE,
-            unit=units.unit_name.tolist(),
-        ),
-        expand(
-            TRIMMED_FASTQ2_FILE,
-            unit=units.unit_name.tolist(),
-        ),
-        STAR_GENOME_DIR,
+        expand(TRIMMED_FASTQ1_FILE, zip, sample=SAMPLES, unit=UNITS),
+        expand(TRIMMED_FASTQ2_FILE, zip, sample=SAMPLES, unit=UNITS),
+        expand(READLENGTH_HISTOGRAM_FILE, zip, sample=SAMPLES, unit=UNITS),
+        expand(READLENGTH_FILE, zip, sample=SAMPLES, unit=UNITS),

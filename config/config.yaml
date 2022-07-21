@@ -15,7 +15,7 @@ gencode:
     fmt: "gtf"
 
 fastq:
-  prefix_wildcard_str: "{unit}"
+  prefix_wildcard_str: "{sample}_{unit}"
   pairs: ["R1_001", "R2_001"]
   platform: "Illumina"
 

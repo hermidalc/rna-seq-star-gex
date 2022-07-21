@@ -3,7 +3,7 @@ from os.path import join
 
 
 def get_readlength(wildcards):
-    file = join(READLENGTH_RESULTS_DIR, f"{wildcards.sample}_length.txt")
+    file = join(READLENGTH_RESULTS_DIR, f"{FASTQ_PREFIX_WILDCARD_STR}_length.txt")
     with open(file, "rb") as fh:
         return re.sub("\D+", "", fh.readline())
 
@@ -29,11 +29,11 @@ rule run_star_align_pass1:
         unpack(get_fq),
         index=STAR_GENOME_DIR,
         gtf=GENCODE_GENOME_ANNOT_FILE,
-        extra=f"-outSAMattrRGline {SAM_ATTR_RG_LINE} --outSAMtype None",
+    params:
+        extra=f"--outSAMattrRGline {SAM_ATTR_RG_LINE} --outSAMtype None",
+        readlength=get_readlength,
     output:
         STAR_PASS1_SJ_FILE,
-    params:
-        readlength=get_readlength,
     threads: config["star"]["index"]["threads"]
     log:
         STAR_ALIGN_PASS1_LOG,
@@ -81,6 +81,7 @@ rule run_star_align_pass2:
         index=STAR_GENOME_DIR,
         gtf=GENCODE_GENOME_ANNOT_FILE,
         sjdb=STAR_PASS1_SJ_FILTERED_FILE,
+    params:
         extra=(
             f"--outSAMattrRGline {SAM_ATTR_RG_LINE}"
             " --outFilterType BySJout"
@@ -90,11 +91,10 @@ rule run_star_align_pass2:
             " --outSAMunmapped Within"
             " --quantMode ReadCounts"
         ),
+        readlength=get_readlength,
     output:
         bam_file=STAR_PASS2_BAM_FILE,
         count_file=STAR_PASS2_READCOUNT_FILE,
-    params:
-        readlength=get_readlength,
     log:
         STAR_ALIGN_PASS2_LOG,
     threads: config["star"]["align"]["threads"]

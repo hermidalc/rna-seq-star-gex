@@ -18,13 +18,22 @@ rule get_readlength_histogram:
 
 
 rule get_max_readlength:
-    conda:
-        "../envs/readlength.yaml"
     input:
         READLENGTH_HISTOGRAM_FILE,
     output:
         READLENGTH_FILE,
-    log:
-        READLENGTH_LOG,
-    script:
-        "../scripts/get_max_readlength.py"
+    run:
+        cols = [
+            "length",
+            "reads",
+            "pct_reads",
+            "cum_reads",
+            "cum_pct_reads",
+            "bases",
+            "pct_bases",
+            "cum_bases",
+            "cum_pct_bases",
+        ]
+        df = pd.read_csv(input[0], sep="\t", comment="#", names=cols)
+        with open(output[0], "w") as fh:
+            print(df["length"].max().astype(int), file=fh, end="")
