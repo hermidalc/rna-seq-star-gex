@@ -3,7 +3,7 @@ from os.path import join
 
 
 def get_readlength(wildcards):
-    with open(READLENGTH_FILE, "r") as fh:
+    with open(expand(READLENGTH_FILE, **wildcards)[0], "r") as fh:
         return re.sub("\D+", "", fh.readline())
 
 
@@ -29,8 +29,9 @@ rule run_star_align_pass1:
         index=STAR_GENOME_DIR,
         gtf=GENCODE_GENOME_ANNOT_FILE,
     params:
-        extra=f"--outSAMattrRGline {SAM_ATTR_RG_LINE} --outSAMtype None",
+        out_dir=STAR_PASS1_OUTPUT_DIR,
         readlength=get_readlength,
+        extra=f"--outSAMtype None",
     output:
         STAR_PASS1_SJ_FILE,
     threads: config["star"]["index"]["threads"]
@@ -52,7 +53,7 @@ rule run_star_filter_pass1_sj:
         num_filtered_novel_sj = 0
         # chromosomal and non-mitochondrial (regex specific to GTF style!)
         chr_no_mt_regex = re.compile("chr([1-9][0-9]?|X|Y)")
-        with open(input, "rb") as f_in:
+        with open(input, "r") as f_in:
             with open(output, "wb") as f_out:
                 for line in f_in:
                     fields = line.rstrip().split("\s+")
@@ -81,16 +82,17 @@ rule run_star_align_pass2:
         gtf=GENCODE_GENOME_ANNOT_FILE,
         sjdb=STAR_PASS1_SJ_FILTERED_FILE,
     params:
+        out_dir=STAR_PASS2_OUTPUT_DIR,
+        readlength=get_readlength,
         extra=(
             f"--outSAMattrRGline {SAM_ATTR_RG_LINE}"
             " --outFilterType BySJout"
-            " --outSAMattributes NH HI AS nM NM ch"
+            " --outSAMattributes All"
             " --outSAMstrandField intronMotif"
             f" --outSAMtype BAM {STAR_BAM_SORT}"
             " --outSAMunmapped Within"
             " --quantMode ReadCounts"
         ),
-        readlength=get_readlength,
     output:
         bam_file=STAR_PASS2_BAM_FILE,
         count_file=STAR_PASS2_READCOUNT_FILE,
