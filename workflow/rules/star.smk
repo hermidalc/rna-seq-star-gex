@@ -53,8 +53,8 @@ rule run_star_filter_pass1_sj:
         num_filtered_novel_sj = 0
         # chromosomal and non-mitochondrial (regex specific to GTF style!)
         chr_no_mt_regex = re.compile("chr([1-9][0-9]?|X|Y)")
-        with open(input, "r") as f_in:
-            with open(output, "wb") as f_out:
+        with open(input[0], "r") as f_in:
+            with open(output[0], "w") as f_out:
                 for line in f_in:
                     fields = line.rstrip().split("\s+")
                     # skip annotated (and keep novel, since already get added from GTF)
@@ -71,8 +71,11 @@ rule run_star_filter_pass1_sj:
                         # supported by at least one unique mapper
                         fields[6] > 0
                     ):
-                        print(f_out, line)
+                        f_out.write(line)
                         num_filtered_novel_sj += 1
+        with open(log[0], "w") as fh:
+            fh.write(f"Num novel sj: {num_novel_sj:d}\n")
+            fh.write(f"Num filtered novel sj: {num_filtered_novel_sj:d}\n")
 
 
 rule run_star_align_pass2:

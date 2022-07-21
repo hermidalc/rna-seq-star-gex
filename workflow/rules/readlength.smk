@@ -36,4 +36,4 @@ rule get_max_readlength:
         ]
         df = pd.read_csv(input[0], sep="\t", comment="#", names=cols)
         with open(output[0], "w") as fh:
-            print(df["length"].max().astype(int), file=fh, end="")
+            fh.write(df["length"].max().astype(int))
