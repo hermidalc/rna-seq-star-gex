@@ -83,7 +83,7 @@ rule run_star_align_pass2:
         unpack(get_fq),
         index=STAR_GENOME_DIR,
         gtf=GENCODE_GENOME_ANNOT_FILE,
-        sjdb=STAR_PASS1_SJ_FILTERED_FILE,
+        sj=STAR_PASS1_SJ_FILTERED_FILE,
     params:
         out_dir=STAR_PASS2_OUTPUT_DIR,
         readlength=get_readlength,

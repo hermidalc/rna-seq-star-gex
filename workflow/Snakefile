@@ -157,3 +157,4 @@ rule all:
         expand(READLENGTH_HISTOGRAM_FILE, zip, sample=SAMPLES, unit=UNITS),
         expand(READLENGTH_FILE, zip, sample=SAMPLES, unit=UNITS),
         expand(STAR_PASS1_SJ_FILE, zip, sample=SAMPLES, unit=UNITS),
+        expand(STAR_PASS1_SJ_FILTERED_FILE, zip, sample=SAMPLES, unit=UNITS),
