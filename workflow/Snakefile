@@ -158,3 +158,5 @@ rule all:
         expand(READLENGTH_FILE, zip, sample=SAMPLES, unit=UNITS),
         expand(STAR_PASS1_SJ_FILE, zip, sample=SAMPLES, unit=UNITS),
         expand(STAR_PASS1_SJ_FILTERED_FILE, zip, sample=SAMPLES, unit=UNITS),
+        expand(STAR_PASS2_BAM_FILE, zip, sample=SAMPLES, unit=UNITS),
+        expand(STAR_PASS2_READCOUNT_FILE, zip, sample=SAMPLES, unit=UNITS),

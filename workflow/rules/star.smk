@@ -52,30 +52,34 @@ rule run_star_filter_pass1_sj:
         num_novel_sj = 0
         num_filtered_novel_sj = 0
         # chromosomal and non-mitochondrial (regex specific to GTF style!)
-        chr_no_mt_regex = re.compile("chr([1-9][0-9]?|X|Y)")
+        # chr_no_mt_regex = re.compile("chr([1-9][0-9]?|X|Y)")
         with open(input[0], "r") as f_in:
             with open(output[0], "w") as f_out:
                 for line in f_in:
-                    fields = line.rstrip().split("\s+")
+                    fields = line.rstrip().split("\t")
+                    num_fields = len(fields)
+                    assert (
+                        num_fields == 9
+                    ), "Number of fields {num_fields} not equal to 9"
                     # skip annotated (and keep novel, since already get added from GTF)
-                    if fields[5] != 0:
+                    if int(fields[5]) != 0:
                         continue
                     num_novel_sj += 1
                     if (
                         # chromosomal and non-mitochondrial
-                        re.match(chr_no_mt_regex, fields[0])
-                        and
+                        # re.match(chr_no_mt_regex, fields[0])
+                        # and
                         # canonical
-                        fields[4] > 0
+                        int(fields[4]) > 0
                         and
                         # supported by at least one unique mapper
-                        fields[6] > 0
+                        int(fields[6]) > 0
                     ):
                         f_out.write(line)
                         num_filtered_novel_sj += 1
         with open(log[0], "w") as fh:
-            fh.write(f"Num novel sj: {num_novel_sj:d}\n")
-            fh.write(f"Num filtered novel sj: {num_filtered_novel_sj:d}\n")
+            fh.write(f"Num novel sj: {num_novel_sj}\n")
+            fh.write(f"Num filtered novel sj: {num_filtered_novel_sj}\n")
 
 
 rule run_star_align_pass2:
@@ -94,7 +98,7 @@ rule run_star_align_pass2:
             " --outSAMstrandField intronMotif"
             f" --outSAMtype BAM {STAR_BAM_SORT}"
             " --outSAMunmapped Within"
-            " --quantMode ReadCounts"
+            " --quantMode GeneCounts"
         ),
     output:
         bam_file=STAR_PASS2_BAM_FILE,
