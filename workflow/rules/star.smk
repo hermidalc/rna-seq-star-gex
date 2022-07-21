@@ -3,8 +3,7 @@ from os.path import join
 
 
 def get_readlength(wildcards):
-    file = join(READLENGTH_RESULTS_DIR, f"{FASTQ_PREFIX_WILDCARD_STR}_length.txt")
-    with open(file, "rb") as fh:
+    with open(READLENGTH_FILE, "r") as fh:
         return re.sub("\D+", "", fh.readline())
 
 
