@@ -9,7 +9,7 @@ def get_readlength(wildcards):
 
 
 localrules:
-    filter_star_sj_pass1,
+    run_star_filter_pass1_sj,
 
 
 rule create_star_genome_index:
@@ -29,7 +29,7 @@ rule run_star_align_pass1:
         unpack(get_fq),
         index=STAR_GENOME_DIR,
         gtf=GENCODE_GENOME_ANNOT_FILE,
-        extra=f"{SAM_ATTR_RG_LINE} --outSAMtype None",
+        extra=f"-outSAMattrRGline {SAM_ATTR_RG_LINE} --outSAMtype None",
     output:
         STAR_PASS1_SJ_FILE,
     params:
@@ -82,13 +82,13 @@ rule run_star_align_pass2:
         gtf=GENCODE_GENOME_ANNOT_FILE,
         sjdb=STAR_PASS1_SJ_FILTERED_FILE,
         extra=(
-            f"--outSAMattrRGline {SAM_ATTR_RG_LINE} "
-            "--outFilterType BySJout "
-            "--outSAMattributes NH HI AS nM NM ch "
-            "--outSAMstrandField intronMotif "
-            f"--outSAMtype BAM {STAR_BAM_SORT} "
-            "--outSAMunmapped Within "
-            "--quantMode ReadCounts "
+            f"--outSAMattrRGline {SAM_ATTR_RG_LINE}"
+            " --outFilterType BySJout"
+            " --outSAMattributes NH HI AS nM NM ch"
+            " --outSAMstrandField intronMotif"
+            f" --outSAMtype BAM {STAR_BAM_SORT}"
+            " --outSAMunmapped Within"
+            " --quantMode ReadCounts"
         ),
     output:
         bam_file=STAR_PASS2_BAM_FILE,

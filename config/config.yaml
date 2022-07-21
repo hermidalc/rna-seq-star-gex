@@ -6,6 +6,7 @@ samples: "config/samples.tsv"
 units: "config/units.tsv"
 
 gencode:
+  protocol: "ftp"
   species: "mouse"
   release: "M30"
   build: "GRCm39"
@@ -14,13 +15,12 @@ gencode:
     fmt: "gtf"
 
 fastq:
-  prefix_wildcard_str: "{sample}"
+  prefix_wildcard_str: "{unit}"
   pairs: ["R1_001", "R2_001"]
   platform: "Illumina"
 
 trimming:
   activate: true
-  dirname: "trimmed"
   threads: 8
 
 star:

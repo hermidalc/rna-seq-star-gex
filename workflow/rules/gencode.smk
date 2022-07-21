@@ -1,5 +1,6 @@
 rule download_gencode_genome_seq:
     params:
+        protocol=GENCODE_PROTOCOL,
         species=GENCODE_SPECIES,
         release=GENCODE_RELEASE,
         build=GENCODE_BUILD,
@@ -12,6 +13,7 @@ rule download_gencode_genome_seq:
 
 rule download_gencode_genome_annot:
     params:
+        protocol=GENCODE_PROTOCOL,
         species=GENCODE_SPECIES,
         release=GENCODE_RELEASE,
         regions=GENCODE_REGIONS,

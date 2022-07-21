@@ -1,4 +1,5 @@
-from os.path import join, splitext
+from os import mkdir
+from os.path import exists, join, splitext
 
 
 configfile: "config/config.yaml"
@@ -11,6 +12,7 @@ RESULTS_DIR = "results"
 
 GENCODE_RESOURCES_DIR = join(RESOURCES_DIR, "gencode")
 
+GENCODE_PROTOCOL = config["gencode"]["protocol"]
 GENCODE_SPECIES = config["gencode"]["species"]
 GENCODE_RELEASE = config["gencode"]["release"]
 GENCODE_BUILD = config["gencode"]["build"]
@@ -36,8 +38,10 @@ FASTQ_PAIRS = config["fastq"]["pairs"]
 FASTQ_PLATFORM = config["fastq"]["platform"]
 
 FASTQ_DATA_DIR = join(DATA_DIR, "fastq")
-TRIMMED_RESULTS_DIR = join(RESULTS_DIR, config["trimming"]["dirname"])
+FASTP_RESULTS_DIR = join(RESULTS_DIR, "fastp")
 FASTP_LOG_DIR = join(LOG_DIR, "fastp")
+
+TRIMMED_RESULTS_DIR = join(FASTP_RESULTS_DIR, FASTQ_PREFIX_WILDCARD_STR)
 
 FASTQ1_FILE = join(
     FASTQ_DATA_DIR, f"{FASTQ_PREFIX_WILDCARD_STR}_{FASTQ_PAIRS[0]}.fastq.gz"
@@ -70,7 +74,7 @@ FASTP_JSON_REPORT_FILE = join(
 )
 
 FASTP_LOG = join(FASTP_LOG_DIR, f"{FASTQ_PREFIX_WILDCARD_STR}.log")
-FASTP_WRAPPER = join(config["wrapper"]["base_url"], "main/bio/fastp")
+FASTP_WRAPPER = join(config["wrapper"]["base_url"], "bio/fastp")
 
 READLENGTH_LOG_DIR = join(LOG_DIR, "readlength")
 READLENGTH_RESULTS_DIR = join(RESULTS_DIR, "readlength")
@@ -133,7 +137,20 @@ include: "rules/readlength.smk"
 include: "rules/star.smk"
 
 
+if not exists(LOG_DIR):
+    mkdir(LOG_DIR, mode=0o755)
+
+
 rule all:
     input:
         GENCODE_GENOME_SEQ_FILE,
         GENCODE_GENOME_ANNOT_FILE,
+        expand(
+            TRIMMED_FASTQ1_FILE,
+            unit=units.unit_name.tolist(),
+        ),
+        expand(
+            TRIMMED_FASTQ2_FILE,
+            unit=units.unit_name.tolist(),
+        ),
+        STAR_GENOME_DIR,
