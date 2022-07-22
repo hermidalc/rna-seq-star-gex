@@ -3,7 +3,7 @@ import pandas as pd
 
 localrules:
     get_readlength_histogram,
-    get_readlength,
+    get_max_readlength,
 
 
 rule get_readlength_histogram:
@@ -17,11 +17,13 @@ rule get_readlength_histogram:
         READLENGTH_WRAPPER
 
 
-rule get_readlength:
+rule get_max_readlength:
     input:
         READLENGTH_HISTOGRAM_FILE,
     output:
         READLENGTH_FILE,
+    log:
+        READLENGTH_LOG,
     run:
         cols = [
             "length",
@@ -34,6 +36,9 @@ rule get_readlength:
             "cum_bases",
             "cum_pct_bases",
         ]
+        print(f"Getting maximum readlength from {input[0]}")
         df = pd.read_csv(input[0], sep="\t", comment="#", names=cols)
         with open(output[0], "w") as fh:
             fh.write(df["length"].max().astype(str))
+        with open(log[0], "w") as fh:
+            fh.write("Wrote maximum readlength to file")
