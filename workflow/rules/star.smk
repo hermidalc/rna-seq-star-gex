@@ -96,7 +96,6 @@ rule run_star_align_pass2:
             f" --outSAMattrRGline {SAM_ATTR_RG_LINE}"
             " --outFilterType BySJout"
             " --outSAMattributes All"
-            " --outSAMstrandField intronMotif"
             f" --outSAMtype BAM {STAR_BAM_SORT}"
             " --outSAMunmapped Within"
             " --quantMode GeneCounts"
