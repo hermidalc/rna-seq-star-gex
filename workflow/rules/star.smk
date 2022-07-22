@@ -92,7 +92,8 @@ rule run_star_align_pass2:
         out_dir=STAR_PASS2_OUTPUT_DIR,
         readlength=get_readlength,
         extra=(
-            f"--outSAMattrRGline {SAM_ATTR_RG_LINE}"
+            "--chimOutType Junctions SeparateSAMold WithinBAM SoftClip"
+            f" --outSAMattrRGline {SAM_ATTR_RG_LINE}"
             " --outFilterType BySJout"
             " --outSAMattributes All"
             " --outSAMstrandField intronMotif"
