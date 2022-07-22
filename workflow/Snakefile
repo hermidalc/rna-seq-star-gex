@@ -12,6 +12,7 @@ RESOURCES_DIR = "resources"
 RESULTS_DIR = "results"
 
 GENCODE_RESOURCES_DIR = join(RESOURCES_DIR, "gencode")
+RSEQC_RESOURCES_DIR = join(RESOURCES_DIR, "rseqc")
 
 GENCODE_PROTOCOL = config["gencode"]["protocol"]
 GENCODE_SPECIES = config["gencode"]["species"]
@@ -19,6 +20,10 @@ GENCODE_RELEASE = config["gencode"]["release"]
 GENCODE_BUILD = config["gencode"]["build"]
 GENCODE_REGIONS = config["gencode"]["regions"]
 GENCODE_ANNOT_FMT = config["gencode"]["annot"]["fmt"]
+
+FASTQ_PREFIX_WILDCARD_STR = config["fastq"]["prefix_wildcard_str"]
+FASTQ_PAIRS = config["fastq"]["pairs"]
+FASTQ_PLATFORM = config["fastq"]["platform"]
 
 GENCODE_GENOME_NAME = f"gencode_v{GENCODE_RELEASE}_{GENCODE_BUILD}"
 
@@ -34,9 +39,26 @@ GENCODE_GENOME_ANNOT_WRAPPER = join(
     config["wrapper"]["base_url"], "bio/reference/gencode/annotation"
 )
 
-FASTQ_PREFIX_WILDCARD_STR = config["fastq"]["prefix_wildcard_str"]
-FASTQ_PAIRS = config["fastq"]["pairs"]
-FASTQ_PLATFORM = config["fastq"]["platform"]
+RSEQC_RESULTS_DIR = join(RESULTS_DIR, "rseqc")
+
+RSEQC_GENOME_ANNOT_FILE = join(RSEQC_RESOURCES_DIR, f"{GENCODE_GENOME_NAME}.bed")
+RSEQC_GENOME_ANNOT_DB = join(RSEQC_RESULTS_DIR, f"{GENCODE_GENOME_NAME}.db")
+
+RSEQC_LOG_DIR = join(LOG_DIR, "rseqc")
+RSEQC_ANNOT_LOG = join(RSEQC_LOG_DIR, "gtf2bed.log")
+
+RSEQC_ANNOT_WRAPPER = join(config["wrapper"]["base_url"], "bio/gffutils/gtf2bed")
+
+RSEQC_INFER_EXPERIMENT_FILE = join(
+    RSEQC_RESULTS_DIR, f"{FASTQ_PREFIX_WILDCARD_STR}_infer_experiment.txt"
+)
+RSEQC_INFER_EXPERIMENT_LOG = join(
+    RSEQC_LOG_DIR, f"{FASTQ_PREFIX_WILDCARD_STR}_infer_experiment.log"
+)
+
+RSEQC_INFER_EXPERIMENT_WRAPPER = join(
+    config["wrapper"]["base_url"], "bio/rseqc/infer_experiment"
+)
 
 FASTQ_DATA_DIR = join(DATA_DIR, "fastq")
 TRIMMED_RESULTS_DIR = join(RESULTS_DIR, "fastp", FASTQ_PREFIX_WILDCARD_STR)
@@ -133,6 +155,7 @@ include: "rules/common.smk"
 include: "rules/gencode.smk"
 include: "rules/fastp.smk"
 include: "rules/readlength.smk"
+include: "rules/rseqc.smk"
 include: "rules/star.smk"
 
 
@@ -152,6 +175,7 @@ rule all:
     input:
         GENCODE_GENOME_SEQ_FILE,
         GENCODE_GENOME_ANNOT_FILE,
+        RSEQC_GENOME_ANNOT_FILE,
         expand(TRIMMED_FASTQ1_FILE, zip, sample=SAMPLES, unit=UNITS),
         expand(TRIMMED_FASTQ2_FILE, zip, sample=SAMPLES, unit=UNITS),
         expand(READLENGTH_HISTOGRAM_FILE, zip, sample=SAMPLES, unit=UNITS),
@@ -160,3 +184,4 @@ rule all:
         expand(STAR_PASS1_SJ_FILTERED_FILE, zip, sample=SAMPLES, unit=UNITS),
         expand(STAR_PASS2_BAM_FILE, zip, sample=SAMPLES, unit=UNITS),
         expand(STAR_PASS2_READCOUNT_FILE, zip, sample=SAMPLES, unit=UNITS),
+        expand(RSEQC_INFER_EXPERIMENT_FILE, zip, sample=SAMPLES, unit=UNITS),
