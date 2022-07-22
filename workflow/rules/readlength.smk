@@ -3,7 +3,7 @@ import pandas as pd
 
 localrules:
     get_readlength_histogram,
-    get_max_readlength,
+    get_readlength,
 
 
 rule get_readlength_histogram:
@@ -17,7 +17,7 @@ rule get_readlength_histogram:
         READLENGTH_WRAPPER
 
 
-rule get_max_readlength:
+rule get_readlength:
     input:
         READLENGTH_HISTOGRAM_FILE,
     output:

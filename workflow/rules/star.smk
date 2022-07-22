@@ -1,12 +1,3 @@
-import re
-from os.path import join
-
-
-def get_readlength(wildcards):
-    with open(expand(READLENGTH_FILE, **wildcards)[0], "r") as fh:
-        return re.sub("\D+", "", fh.readline())
-
-
 localrules:
     run_star_filter_pass1_sj,
 
@@ -28,9 +19,9 @@ rule run_star_align_pass1:
         unpack(get_fq),
         index=STAR_GENOME_DIR,
         gtf=GENCODE_GENOME_ANNOT_FILE,
+        readlength=READLENGTH_FILE,
     params:
         out_dir=STAR_PASS1_OUTPUT_DIR,
-        readlength=get_readlength,
         extra=f"--outSAMtype None",
     output:
         STAR_PASS1_SJ_FILE,
@@ -87,10 +78,10 @@ rule run_star_align_pass2:
         unpack(get_fq),
         index=STAR_GENOME_DIR,
         gtf=GENCODE_GENOME_ANNOT_FILE,
+        readlength=READLENGTH_FILE,
         sj=STAR_PASS1_SJ_FILTERED_FILE,
     params:
         out_dir=STAR_PASS2_OUTPUT_DIR,
-        readlength=get_readlength,
         extra=(
             "--chimOutType Junctions SeparateSAMold WithinBAM SoftClip"
             f" --outSAMattrRGline {SAM_ATTR_RG_LINE}"
