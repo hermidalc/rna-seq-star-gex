@@ -42,8 +42,8 @@ rule star_filter_pass1_sj:
         print(f"Filtering STAR {input[0]}", flush=True)
         num_novel_sj = 0
         num_filtered_novel_sj = 0
-        # chromosomal and non-mitochondrial (regex specific to GTF style!)
-        # chr_no_mt_regex = re.compile("chr([1-9][0-9]?|X|Y)")
+        ## chromosomal and/or non-mitochondrial
+        chr_regex = re.compile(config["star"]["sj_filter_chr_regex"])
         with open(input[0], "r") as f_in:
             with open(output[0], "w") as f_out:
                 for line in f_in:
@@ -57,9 +57,9 @@ rule star_filter_pass1_sj:
                         continue
                     num_novel_sj += 1
                     if (
-                        # chromosomal and non-mitochondrial
-                        # re.match(chr_no_mt_regex, fields[0])
-                        # and
+                        ## chromosomal and/or non-mitochondrial
+                        re.match(chr_regex, fields[0])
+                        and
                         # canonical
                         int(fields[4]) > 0
                         and
@@ -85,10 +85,10 @@ rule star_align_pass2:
         extra=(
             "--chimOutType Junctions SeparateSAMold WithinBAM SoftClip"
             f" --outSAMattrRGline {SAM_ATTR_RG_LINE}"
-            " --outFilterType BySJout"
-            " --outSAMattributes All"
             f" --outSAMtype BAM {STAR_BAM_SORT}"
+            " --outSAMattributes All"
             " --outSAMunmapped Within"
+            " --outFilterType BySJout"
             " --quantMode GeneCounts"
         ),
     output:
