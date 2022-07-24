@@ -4,8 +4,8 @@ localrules:
 
 rule star_count_matrix:
     input:
-        counts=STAR_READ_COUNT_FILE,
-        strand=RSEQC_STRAND_INFO_FILE,
+        counts=expand(STAR_READ_COUNT_FILE, zip, **EXPAND_PARAMS),
+        strand=expand(RSEQC_STRAND_INFO_FILE, zip, **EXPAND_PARAMS),
     params:
         samples=SAMPLES,
     output:

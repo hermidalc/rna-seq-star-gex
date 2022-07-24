@@ -1,5 +1,5 @@
 def get_fq(wildcards):
-    u = units.loc[
+    u = units_df.loc[
         (wildcards.sample, wildcards.unit)
         if hasattr(wildcards, "unit")
         else wildcards.sample,
@@ -13,7 +13,7 @@ def get_fq(wildcards):
 
 
 def get_source_fq(wildcards):
-    u = units.loc[
+    u = units_df.loc[
         (wildcards.sample, wildcards.unit)
         if hasattr(wildcards, "unit")
         else wildcards.sample,

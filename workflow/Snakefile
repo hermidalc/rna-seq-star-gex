@@ -18,36 +18,33 @@ RESULTS_DIR = "results"
 
 STUDY_NAME = config["study"]["name"]
 
-samples = (
+samples_df = (
     pd.read_csv(config["study"]["samples"], sep="\t", dtype={"sample_name": str})
     .set_index("sample_name", drop=False, verify_integrity=True)
     .sort_index()
 )
-validate(samples, schema="schemas/samples.schema.yaml")
+validate(samples_df, schema="schemas/samples.schema.yaml")
 
-units = pd.read_csv(
+units_df = pd.read_csv(
     config["study"]["units"], sep="\t", dtype={"sample_name": str, "unit_name": str}
 )
-if units["unit_name"].isna().all():
-    units = units.set_index(
+if units_df["unit_name"].isna().all():
+    units_df = units_df.set_index(
         "sample_name", drop=False, verify_integrity=True
     ).sort_index()
     FASTQ_PREFIX_WILDCARD_STR = "{sample}"
-    expand_params = {"sample": units.sample_name.tolist()}
-    SAMPLES = units["sample_name"].tolist()
+    SAMPLES = units_df["sample_name"].tolist()
+    EXPAND_PARAMS = {"sample": SAMPLES}
 else:
-    units.set_index(
+    units_df.set_index(
         ["sample_name", "unit_name"], drop=False, verify_integrity=True
     ).sort_index()
     FASTQ_PREFIX_WILDCARD_STR = "{sample}_{unit}"
-    expand_params = {
-        "sample": units.sample_name.tolist(),
-        "unit": units.unit_name.tolist(),
-    }
-    SAMPLES = units["sample_name"].tolist()
-    UNITS = units["unit_name"].tolist()
+    SAMPLES = units_df["sample_name"].tolist()
+    UNITS = units_df["unit_name"].tolist()
+    EXPAND_PARAMS = {"sample": SAMPLES, "unit": UNITS}
 
-validate(units, schema="schemas/units.schema.yaml")
+validate(units_df, schema="schemas/units.schema.yaml")
 
 GENCODE_RESOURCES_DIR = join(RESOURCES_DIR, "gencode")
 RSEQC_RESOURCES_DIR = join(RESOURCES_DIR, "rseqc")
@@ -214,7 +211,7 @@ if not exists(LOG_DIR):
 
 
 wildcard_constraints:
-    **{w: "|".join(set([re.escape(v) for v in l])) for w, l in expand_params.items()},
+    **{w: "|".join(set([re.escape(v) for v in l])) for w, l in EXPAND_PARAMS.items()},
 
 
 rule all:
@@ -223,16 +220,16 @@ rule all:
         GENCODE_GENOME_ANNOT_FILE,
         RSEQC_GENOME_ANNOT_FILE,
         STAR_GENOME_DIR,
-        expand(TRIMMED_FASTQ1_FILE, zip, **expand_params),
-        expand(TRIMMED_FASTQ2_FILE, zip, **expand_params),
-        expand(READ_LENGTH_HISTOGRAM_FILE, zip, **expand_params),
-        expand(READ_LENGTH_FILE, zip, **expand_params),
-        expand(STAR_PASS1_SJ_FILE, zip, **expand_params),
-        expand(STAR_PASS1_SJ_FILTERED_FILE, zip, **expand_params),
-        expand(STAR_BAM_FILE, zip, **expand_params),
-        expand(STAR_READ_COUNT_FILE, zip, **expand_params),
-        expand(RSEQC_INFER_EXPERIMENT_FILE, zip, **expand_params),
-        expand(RSEQC_STRAND_INFO_FILE, zip, **expand_params),
+        expand(TRIMMED_FASTQ1_FILE, zip, **EXPAND_PARAMS),
+        expand(TRIMMED_FASTQ2_FILE, zip, **EXPAND_PARAMS),
+        expand(READ_LENGTH_HISTOGRAM_FILE, zip, **EXPAND_PARAMS),
+        expand(READ_LENGTH_FILE, zip, **EXPAND_PARAMS),
+        expand(STAR_PASS1_SJ_FILE, zip, **EXPAND_PARAMS),
+        expand(STAR_PASS1_SJ_FILTERED_FILE, zip, **EXPAND_PARAMS),
+        expand(STAR_BAM_FILE, zip, **EXPAND_PARAMS),
+        expand(STAR_READ_COUNT_FILE, zip, **EXPAND_PARAMS),
+        expand(RSEQC_INFER_EXPERIMENT_FILE, zip, **EXPAND_PARAMS),
+        expand(RSEQC_STRAND_INFO_FILE, zip, **EXPAND_PARAMS),
         COUNT_MATRIX_FILE,
 
 
