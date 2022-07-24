@@ -85,8 +85,8 @@ FASTQ_PARENT_DIR = config["fastq"]["parent_dir"]
 FASTQ_PAIRS = config["fastq"]["pairs"]
 FASTQ_PLATFORM = config["fastq"]["platform"]
 
-TRIMMED_RESULTS_DIR = join(RESULTS_DIR, "fastp", "{sub_dir}", FASTQ_PREFIX_WILDCARD_STR)
-FASTP_LOG_DIR = join(LOG_DIR, "fastq", "{sub_dir}")
+TRIMMED_RESULTS_DIR = join(RESULTS_DIR, "{sub_dir}", "fastp", FASTQ_PREFIX_WILDCARD_STR)
+FASTP_LOG_DIR = join(LOG_DIR, "{sub_dir}", "fastp")
 
 FASTQ1_FILE = join(
     FASTQ_PARENT_DIR, f"{FASTQ_PREFIX_WILDCARD_STR}_{FASTQ_PAIRS[0]}.fastq.gz"
@@ -122,8 +122,8 @@ FASTP_JSON_REPORT_FILE = join(
 FASTP_LOG = join(FASTP_LOG_DIR, f"{FASTQ_PREFIX_WILDCARD_STR}.log")
 FASTP_WRAPPER = join(config["wrapper"]["base_url"], "bio/fastp")
 
-READ_LENGTH_RESULTS_DIR = join(RESULTS_DIR, "read_length", "{sub_dir}")
-READ_LENGTH_LOG_DIR = join(LOG_DIR, "read_length", "{sub_dir}")
+READ_LENGTH_RESULTS_DIR = join(RESULTS_DIR, "{sub_dir}", "read_length")
+READ_LENGTH_LOG_DIR = join(LOG_DIR, "{sub_dir}", "read_length")
 
 READ_LENGTH_HISTOGRAM_FILE = join(
     READ_LENGTH_RESULTS_DIR, f"{FASTQ_PREFIX_WILDCARD_STR}_histogram.tsv"
@@ -140,8 +140,8 @@ READ_LENGTH_LOG = join(READ_LENGTH_LOG_DIR, f"{FASTQ_PREFIX_WILDCARD_STR}_length
 READ_LENGTH_WRAPPER = join(config["wrapper"]["base_url"], "bio/bbmap/readlength")
 
 STAR_RESOURCES_DIR = join(RESOURCES_DIR, "star")
-STAR_RESULTS_DIR = join(RESULTS_DIR, "star", "{sub_dir}")
-STAR_LOG_DIR = join(LOG_DIR, "star", "{sub_dir}")
+STAR_RESULTS_DIR = join(RESULTS_DIR, "{sub_dir}", "star")
+STAR_LOG_DIR = join(LOG_DIR, "{sub_dir}", "star")
 STAR_GENOME_DIR = join(STAR_RESOURCES_DIR, GENCODE_GENOME_NAME)
 STAR_OUTPUT_DIR = join(STAR_RESULTS_DIR, FASTQ_PREFIX_WILDCARD_STR)
 STAR_PASS1_OUTPUT_DIR = join(STAR_OUTPUT_DIR, "_STARpass1")
@@ -176,8 +176,8 @@ STAR_ALIGN_PASS2_LOG = join(STAR_OUTPUT_LOG_DIR, "align_pass2.log")
 STAR_GENOME_WRAPPER = join(config["wrapper"]["base_url"], "bio/star/index")
 STAR_ALIGN_WRAPPER = join(config["wrapper"]["base_url"], "bio/star/align")
 
-RSEQC_RESULTS_DIR = join(RESULTS_DIR, "rseqc", "{sub_dir}")
-RSEQC_LOG_DIR = join(LOG_DIR, "rseqc", "{sub_dir}")
+RSEQC_RESULTS_DIR = join(RESULTS_DIR, "{sub_dir}", "rseqc")
+RSEQC_LOG_DIR = join(LOG_DIR, "{sub_dir}", "rseqc")
 
 RSEQC_INFER_EXPERIMENT_FILE = join(
     RSEQC_RESULTS_DIR, f"{FASTQ_PREFIX_WILDCARD_STR}_infer_experiment.txt"
