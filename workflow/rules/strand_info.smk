@@ -13,11 +13,13 @@ rule gffutils_gtf2bed:
 rule rseqc_infer_experiment:
     input:
         bed=RSEQC_GENOME_ANNOT_FILE,
-        bam=STAR_PASS2_BAM_FILE,
+        bam=STAR_BAM_FILE,
+    params:
+        sample_size=config["rseqc"]["infer_exp"]["sample_size"],
     output:
-        RSEQC_INFER_EXPERIMENT_FILE,
+        infer=RSEQC_INFER_EXPERIMENT_FILE,
+        strand=RSEQC_STRAND_INFO_FILE,
     log:
         RSEQC_INFER_EXPERIMENT_LOG,
-    priority: 1
     wrapper:
         RSEQC_INFER_EXPERIMENT_WRAPPER

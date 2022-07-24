@@ -1,10 +1,10 @@
 localrules:
-    run_star_filter_pass1_sj,
+    star_filter_pass1_sj,
 
 
-rule create_star_genome_index:
+rule star_genome_index:
     input:
-        GENCODE_GENOME_SEQ_FILE,
+        fastas=GENCODE_GENOME_SEQ_FILE,
     output:
         directory(STAR_GENOME_DIR),
     threads: config["star"]["index"]["threads"]
@@ -14,12 +14,11 @@ rule create_star_genome_index:
         STAR_GENOME_WRAPPER
 
 
-rule run_star_align_pass1:
+rule star_align_pass1:
     input:
         unpack(get_fq),
         index=STAR_GENOME_DIR,
-        gtf=GENCODE_GENOME_ANNOT_FILE,
-        readlength=READLENGTH_FILE,
+        read_length=READ_LENGTH_FILE,
     params:
         out_dir=STAR_PASS1_OUTPUT_DIR,
         extra=f"--outSAMtype None",
@@ -32,7 +31,7 @@ rule run_star_align_pass1:
         STAR_ALIGN_WRAPPER
 
 
-rule run_star_filter_pass1_sj:
+rule star_filter_pass1_sj:
     input:
         STAR_PASS1_SJ_FILE,
     output:
@@ -40,6 +39,7 @@ rule run_star_filter_pass1_sj:
     log:
         STAR_PASS1_SJ_FILTERED_LOG,
     run:
+        print(f"Filtering STAR {input[0]}", flush=True)
         num_novel_sj = 0
         num_filtered_novel_sj = 0
         # chromosomal and non-mitochondrial (regex specific to GTF style!)
@@ -73,12 +73,12 @@ rule run_star_filter_pass1_sj:
             fh.write(f"Num filtered novel sj: {num_filtered_novel_sj}\n")
 
 
-rule run_star_align_pass2:
+rule star_align_pass2:
     input:
         unpack(get_fq),
         index=STAR_GENOME_DIR,
         gtf=GENCODE_GENOME_ANNOT_FILE,
-        readlength=READLENGTH_FILE,
+        read_length=READ_LENGTH_FILE,
         sj=STAR_PASS1_SJ_FILTERED_FILE,
     params:
         out_dir=STAR_PASS2_OUTPUT_DIR,
@@ -92,8 +92,8 @@ rule run_star_align_pass2:
             " --quantMode GeneCounts"
         ),
     output:
-        bam_file=STAR_PASS2_BAM_FILE,
-        count_file=STAR_PASS2_READCOUNT_FILE,
+        bam_file=STAR_BAM_FILE,
+        count_file=STAR_READ_COUNT_FILE,
     log:
         STAR_ALIGN_PASS2_LOG,
     threads: config["star"]["align"]["threads"]

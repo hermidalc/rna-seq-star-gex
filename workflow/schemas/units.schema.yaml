@@ -26,4 +26,3 @@ properties:
 
 required:
   - sample_name
-  - unit_name

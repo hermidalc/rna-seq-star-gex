@@ -2,8 +2,10 @@
 wrapper:
   base_url: "file:///home/hermidalc/projects/github/hermidalc/snakemake-wrappers/"
 
-samples: "config/samples.tsv"
-units: "config/units.tsv"
+study:
+  name: "R10_pEtn"
+  samples: "config/samples.tsv"
+  units: "config/units.tsv"
 
 gencode:
   protocol: "ftp"
@@ -15,7 +17,6 @@ gencode:
     fmt: "gtf"
 
 fastq:
-  prefix_wildcard_str: "{sample}_{unit}"
   pairs: ["R1_001", "R2_001"]
   platform: "Illumina"
 
@@ -25,7 +26,11 @@ trimming:
 
 star:
   index:
-    threads: 32
+    threads: 16
   align:
     sort_bam: true
-    threads: 32
+    threads: 16
+
+rseqc:
+  infer_exp:
+    sample_size: 1000000

@@ -1,4 +1,4 @@
-rule run_trim_fastp:
+rule fastp:
     input:
         unpack(get_source_fq),
     params:

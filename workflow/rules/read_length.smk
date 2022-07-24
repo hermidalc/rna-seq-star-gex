@@ -2,28 +2,28 @@ import pandas as pd
 
 
 localrules:
-    get_readlength_histogram,
-    get_max_readlength,
+    read_length_histogram,
+    max_read_length,
 
 
-rule get_readlength_histogram:
+rule read_length_histogram:
     input:
         unpack(get_fq),
     output:
-        READLENGTH_HISTOGRAM_FILE,
+        READ_LENGTH_HISTOGRAM_FILE,
     log:
-        READLENGTH_HISTOGRAM_LOG,
+        READ_LENGTH_HISTOGRAM_LOG,
     wrapper:
-        READLENGTH_WRAPPER
+        READ_LENGTH_WRAPPER
 
 
-rule get_max_readlength:
+rule max_read_length:
     input:
-        READLENGTH_HISTOGRAM_FILE,
+        READ_LENGTH_HISTOGRAM_FILE,
     output:
-        READLENGTH_FILE,
+        READ_LENGTH_FILE,
     log:
-        READLENGTH_LOG,
+        READ_LENGTH_LOG,
     run:
         cols = [
             "length",
@@ -36,9 +36,10 @@ rule get_max_readlength:
             "cum_bases",
             "cum_pct_bases",
         ]
-        print(f"Getting maximum readlength from {input[0]}")
+        print(f"Getting maximum read length from {input[0]}", flush=True)
         df = pd.read_csv(input[0], sep="\t", comment="#", names=cols)
+        max_length = df["length"].max().astype(str)
         with open(output[0], "w") as fh:
-            fh.write(df["length"].max().astype(str))
+            fh.write(max_length)
         with open(log[0], "w") as fh:
-            fh.write("Wrote maximum readlength to file")
+            fh.write(f"Wrote max length {max_length} file")

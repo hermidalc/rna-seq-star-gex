@@ -1,6 +1,11 @@
 import re
-from os import mkdir
-from os.path import exists, join, splitext
+from glob import glob
+from os import getcwd, mkdir, remove, walk
+from os.path import exists, isdir, join, splitext
+from shutil import rmtree
+
+import pandas as pd
+from snakemake.utils import validate
 
 
 configfile: "config/config.yaml"
@@ -11,6 +16,39 @@ LOG_DIR = "logs"
 RESOURCES_DIR = "resources"
 RESULTS_DIR = "results"
 
+STUDY_NAME = config["study"]["name"]
+
+samples = (
+    pd.read_csv(config["study"]["samples"], sep="\t", dtype={"sample_name": str})
+    .set_index("sample_name", drop=False, verify_integrity=True)
+    .sort_index()
+)
+validate(samples, schema="schemas/samples.schema.yaml")
+
+units = pd.read_csv(
+    config["study"]["units"], sep="\t", dtype={"sample_name": str, "unit_name": str}
+)
+if units["unit_name"].isna().all():
+    units = units.set_index(
+        "sample_name", drop=False, verify_integrity=True
+    ).sort_index()
+    FASTQ_PREFIX_WILDCARD_STR = "{sample}"
+    expand_params = {"sample": units.sample_name.tolist()}
+    SAMPLES = units["sample_name"].tolist()
+else:
+    units.set_index(
+        ["sample_name", "unit_name"], drop=False, verify_integrity=True
+    ).sort_index()
+    FASTQ_PREFIX_WILDCARD_STR = "{sample}_{unit}"
+    expand_params = {
+        "sample": units.sample_name.tolist(),
+        "unit": units.unit_name.tolist(),
+    }
+    SAMPLES = units["sample_name"].tolist()
+    UNITS = units["unit_name"].tolist()
+
+validate(units, schema="schemas/units.schema.yaml")
+
 GENCODE_RESOURCES_DIR = join(RESOURCES_DIR, "gencode")
 RSEQC_RESOURCES_DIR = join(RESOURCES_DIR, "rseqc")
 
@@ -20,10 +58,6 @@ GENCODE_RELEASE = config["gencode"]["release"]
 GENCODE_BUILD = config["gencode"]["build"]
 GENCODE_REGIONS = config["gencode"]["regions"]
 GENCODE_ANNOT_FMT = config["gencode"]["annot"]["fmt"]
-
-FASTQ_PREFIX_WILDCARD_STR = config["fastq"]["prefix_wildcard_str"]
-FASTQ_PAIRS = config["fastq"]["pairs"]
-FASTQ_PLATFORM = config["fastq"]["platform"]
 
 GENCODE_GENOME_NAME = f"gencode_v{GENCODE_RELEASE}_{GENCODE_BUILD}"
 
@@ -49,16 +83,8 @@ RSEQC_ANNOT_LOG = join(RSEQC_LOG_DIR, "gtf2bed.log")
 
 RSEQC_ANNOT_WRAPPER = join(config["wrapper"]["base_url"], "bio/gffutils/gtf2bed")
 
-RSEQC_INFER_EXPERIMENT_FILE = join(
-    RSEQC_RESULTS_DIR, f"{FASTQ_PREFIX_WILDCARD_STR}_infer_experiment.txt"
-)
-RSEQC_INFER_EXPERIMENT_LOG = join(
-    RSEQC_LOG_DIR, f"{FASTQ_PREFIX_WILDCARD_STR}_infer_experiment.log"
-)
-
-RSEQC_INFER_EXPERIMENT_WRAPPER = join(
-    config["wrapper"]["base_url"], "bio/rseqc/infer_experiment"
-)
+FASTQ_PAIRS = config["fastq"]["pairs"]
+FASTQ_PLATFORM = config["fastq"]["platform"]
 
 FASTQ_DATA_DIR = join(DATA_DIR, "fastq")
 TRIMMED_RESULTS_DIR = join(RESULTS_DIR, "fastp", FASTQ_PREFIX_WILDCARD_STR)
@@ -97,22 +123,22 @@ FASTP_JSON_REPORT_FILE = join(
 FASTP_LOG = join(FASTP_LOG_DIR, f"{FASTQ_PREFIX_WILDCARD_STR}.log")
 FASTP_WRAPPER = join(config["wrapper"]["base_url"], "bio/fastp")
 
-READLENGTH_LOG_DIR = join(LOG_DIR, "readlength")
-READLENGTH_RESULTS_DIR = join(RESULTS_DIR, "readlength")
+READ_LENGTH_LOG_DIR = join(LOG_DIR, "read_length")
+READ_LENGTH_RESULTS_DIR = join(RESULTS_DIR, "read_length")
 
-READLENGTH_HISTOGRAM_FILE = join(
-    READLENGTH_RESULTS_DIR, f"{FASTQ_PREFIX_WILDCARD_STR}_histogram.tsv"
+READ_LENGTH_HISTOGRAM_FILE = join(
+    READ_LENGTH_RESULTS_DIR, f"{FASTQ_PREFIX_WILDCARD_STR}_histogram.tsv"
 )
-READLENGTH_FILE = join(
-    READLENGTH_RESULTS_DIR, f"{FASTQ_PREFIX_WILDCARD_STR}_length.txt"
+READ_LENGTH_FILE = join(
+    READ_LENGTH_RESULTS_DIR, f"{FASTQ_PREFIX_WILDCARD_STR}_length.txt"
 )
 
-READLENGTH_HISTOGRAM_LOG = join(
-    READLENGTH_LOG_DIR, f"{FASTQ_PREFIX_WILDCARD_STR}_histogram.log"
+READ_LENGTH_HISTOGRAM_LOG = join(
+    READ_LENGTH_LOG_DIR, f"{FASTQ_PREFIX_WILDCARD_STR}_histogram.log"
 )
-READLENGTH_LOG = join(READLENGTH_LOG_DIR, f"{FASTQ_PREFIX_WILDCARD_STR}_length.log")
+READ_LENGTH_LOG = join(READ_LENGTH_LOG_DIR, f"{FASTQ_PREFIX_WILDCARD_STR}_length.log")
 
-READLENGTH_WRAPPER = join(config["wrapper"]["base_url"], "bio/bbmap/readlength")
+READ_LENGTH_WRAPPER = join(config["wrapper"]["base_url"], "bio/bbmap/readlength")
 
 STAR_LOG_DIR = join(LOG_DIR, "star")
 STAR_RESOURCES_DIR = join(RESOURCES_DIR, "star")
@@ -126,13 +152,13 @@ STAR_OUTPUT_LOG_DIR = join(STAR_LOG_DIR, FASTQ_PREFIX_WILDCARD_STR)
 STAR_PASS1_SJ_FILE = join(STAR_PASS1_OUTPUT_DIR, "SJ.out.tab")
 STAR_PASS1_SJ_FILTERED_FILE = join(STAR_PASS1_OUTPUT_DIR, "SJ.filtered.out.tab")
 
-STAR_PASS2_BAM_FILE = join(
+STAR_BAM_FILE = join(
     STAR_PASS2_OUTPUT_DIR,
     "Aligned.sortedByCoord.out.bam"
     if config["star"]["align"]["sort_bam"]
     else "Aligned.out.bam",
 )
-STAR_PASS2_READCOUNT_FILE = join(STAR_PASS2_OUTPUT_DIR, "ReadsPerGene.out.tab")
+STAR_READ_COUNT_FILE = join(STAR_PASS2_OUTPUT_DIR, "ReadsPerGene.out.tab")
 
 SAM_ATTR_RG_LINE = (
     f"ID:{FASTQ_PREFIX_WILDCARD_STR} PL:{FASTQ_PLATFORM} "
@@ -150,25 +176,45 @@ STAR_ALIGN_PASS2_LOG = join(STAR_OUTPUT_LOG_DIR, "align_pass2.log")
 STAR_GENOME_WRAPPER = join(config["wrapper"]["base_url"], "bio/star/index")
 STAR_ALIGN_WRAPPER = join(config["wrapper"]["base_url"], "bio/star/align")
 
+RSEQC_INFER_EXPERIMENT_FILE = join(
+    RSEQC_RESULTS_DIR, f"{FASTQ_PREFIX_WILDCARD_STR}_infer_experiment.txt"
+)
+RSEQC_INFER_EXPERIMENT_LOG = join(
+    RSEQC_LOG_DIR, f"{FASTQ_PREFIX_WILDCARD_STR}_infer_experiment.log"
+)
+
+RSEQC_INFER_EXPERIMENT_WRAPPER = join(
+    config["wrapper"]["base_url"], "bio/rseqc/infer_experiment"
+)
+
+RSEQC_STRAND_INFO_FILE = join(
+    RSEQC_RESULTS_DIR, f"{FASTQ_PREFIX_WILDCARD_STR}_strand_info.txt"
+)
+
+COUNT_MATRIX_RESULTS_DIR = join(RESULTS_DIR, "count_matrix")
+COUNT_MATRIX_LOG_DIR = join(LOG_DIR, "count_matrix")
+
+COUNT_MATRIX_FILE = join(COUNT_MATRIX_RESULTS_DIR, f"{STUDY_NAME}.tsv")
+COUNT_MATRIX_LOG = join(COUNT_MATRIX_LOG_DIR, f"{STUDY_NAME}.log")
+
+COUNT_MATRIX_WRAPPER = join(config["wrapper"]["base_url"], "bio/star/count_matrix")
+
 
 include: "rules/common.smk"
-include: "rules/gencode.smk"
-include: "rules/fastp.smk"
-include: "rules/readlength.smk"
-include: "rules/rseqc.smk"
-include: "rules/star.smk"
+include: "rules/genome.smk"
+include: "rules/trim.smk"
+include: "rules/read_length.smk"
+include: "rules/align.smk"
+include: "rules/strand_info.smk"
+include: "rules/count_matrix.smk"
 
 
 if not exists(LOG_DIR):
     mkdir(LOG_DIR, mode=0o755)
 
-SAMPLES = units.sample_name.tolist()
-UNITS = units.unit_name.tolist()
-
 
 wildcard_constraints:
-    sample="|".join(set([re.escape(s) for s in SAMPLES])),
-    unit="|".join(set([re.escape(u) for u in UNITS])),
+    **{w: "|".join(set([re.escape(v) for v in l])) for w, l in expand_params.items()},
 
 
 rule all:
@@ -176,12 +222,38 @@ rule all:
         GENCODE_GENOME_SEQ_FILE,
         GENCODE_GENOME_ANNOT_FILE,
         RSEQC_GENOME_ANNOT_FILE,
-        expand(TRIMMED_FASTQ1_FILE, zip, sample=SAMPLES, unit=UNITS),
-        expand(TRIMMED_FASTQ2_FILE, zip, sample=SAMPLES, unit=UNITS),
-        expand(READLENGTH_HISTOGRAM_FILE, zip, sample=SAMPLES, unit=UNITS),
-        expand(READLENGTH_FILE, zip, sample=SAMPLES, unit=UNITS),
-        expand(STAR_PASS1_SJ_FILE, zip, sample=SAMPLES, unit=UNITS),
-        expand(STAR_PASS1_SJ_FILTERED_FILE, zip, sample=SAMPLES, unit=UNITS),
-        expand(STAR_PASS2_BAM_FILE, zip, sample=SAMPLES, unit=UNITS),
-        expand(STAR_PASS2_READCOUNT_FILE, zip, sample=SAMPLES, unit=UNITS),
-        expand(RSEQC_INFER_EXPERIMENT_FILE, zip, sample=SAMPLES, unit=UNITS),
+        STAR_GENOME_DIR,
+        expand(TRIMMED_FASTQ1_FILE, zip, **expand_params),
+        expand(TRIMMED_FASTQ2_FILE, zip, **expand_params),
+        expand(READ_LENGTH_HISTOGRAM_FILE, zip, **expand_params),
+        expand(READ_LENGTH_FILE, zip, **expand_params),
+        expand(STAR_PASS1_SJ_FILE, zip, **expand_params),
+        expand(STAR_PASS1_SJ_FILTERED_FILE, zip, **expand_params),
+        expand(STAR_BAM_FILE, zip, **expand_params),
+        expand(STAR_READ_COUNT_FILE, zip, **expand_params),
+        expand(RSEQC_INFER_EXPERIMENT_FILE, zip, **expand_params),
+        expand(RSEQC_STRAND_INFO_FILE, zip, **expand_params),
+        COUNT_MATRIX_FILE,
+
+
+def clean(*dirs):
+    for clean_dir in dirs:
+        for file in glob(join(clean_dir, "*")):
+            if isdir(file):
+                rmtree(file)
+            else:
+                remove(file)
+        for dirpath, dirnames, filenames in sorted(walk(getcwd())):
+            for dirname in dirnames:
+                if dirname == "__pycache__":
+                    rmtree(join(dirpath, dirname))
+
+
+rule clean:
+    run:
+        clean(RESULTS_DIR, LOG_DIR)
+
+
+rule clean_all:
+    run:
+        clean(RESULTS_DIR, LOG_DIR, RESOURCES_DIR)
