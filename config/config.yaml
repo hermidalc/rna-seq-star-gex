@@ -31,7 +31,7 @@ star:
     sort_bam: true
     threads: 16
   # regex specific to GTF style
-  sj_filter_chr_regex: "^(?!chrM$).+$" # "chr([1-9][0-9]?|X|Y)"
+  sj_filter_chr_regex: "^(?!chrM$).+$"  # "chr([1-9][0-9]?|X|Y)"
 
 
 rseqc:
