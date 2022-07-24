@@ -17,6 +17,7 @@ gencode:
     fmt: "gtf"
 
 fastq:
+  parent_dir: "data/fastq"
   pairs: ["R1_001", "R2_001"]
   platform: "Illumina"
 
