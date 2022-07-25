@@ -2,7 +2,7 @@ rule fastp:
     input:
         unpack(get_source_fq),
     params:
-        extra="--trim_poly_x --disable_adapter_trimming",
+        extra=config["fastp"]["extra_params"],
     output:
         trim_fq1=TRIMMED_FASTQ1_FILE,
         trim_fq2=TRIMMED_FASTQ2_FILE,
