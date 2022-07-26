@@ -5,5 +5,4 @@ channels:
 dependencies:
   - libblas=[build=*mkl]
   - libopenblas
-  - r-base
   - snakemake

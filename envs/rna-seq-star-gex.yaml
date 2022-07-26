@@ -3,5 +3,4 @@ channels:
   - conda-forge
   - bioconda
 dependencies:
-  - r-base
   - snakemake
