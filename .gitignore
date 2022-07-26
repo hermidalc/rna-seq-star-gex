@@ -1,11 +1,15 @@
 *
+!config
+!config/config.yaml
+!envs
+!envs/*
 !LICENSE
 !README.md
-!.test
-!.test/data
 !workflow
 !workflow/**
 !.gitignore
 !.editorconfig
 !.gitattributes
 !.snakemake-workflow-catalog.yaml
+!.test
+!.test/data
