@@ -20,11 +20,12 @@ fastq:
   parent_dir: "data/fastq"
   pairs: ["R1_001", "R2_001"]
   platform: "Illumina"
-  extra_params: "--trim_poly_x --disable_adapter_trimming --correction"
 
 trimming:
   activate: true
-  threads: 8
+  fastp:
+    threads: 8
+    extra_params: "--trim_poly_x --detect_adapter_for_pe --correction"
 
 star:
   index:

@@ -3,7 +3,7 @@ rule fastp:
         unpack(get_source_fq),
     params:
         run_id=RUN_ID_WILDCARD_STR,
-        extra=config["fastp"]["extra_params"],
+        extra=config["trimming"]["fastp"]["extra_params"],
     output:
         trim_fq1=TRIMMED_FASTQ1_FILE,
         trim_fq2=TRIMMED_FASTQ2_FILE,
@@ -12,7 +12,7 @@ rule fastp:
         failed=FAILED_READS_FILE,
         html=FASTP_HTML_REPORT_FILE,
         json=FASTP_JSON_REPORT_FILE,
-    threads: config["trimming"]["threads"]
+    threads: config["trimming"]["fastp"]["threads"]
     log:
         FASTP_LOG,
     wrapper:
