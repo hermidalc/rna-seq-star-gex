@@ -11,6 +11,8 @@ rule read_length_histogram:
         unpack(get_fq),
     output:
         READ_LENGTH_HISTOGRAM_FILE,
+    resources:
+        read_length_cores=1,
     log:
         READ_LENGTH_HISTOGRAM_LOG,
     wrapper:

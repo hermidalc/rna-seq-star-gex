@@ -151,10 +151,10 @@ STAR_BAM_SORT = (
 )
 
 STAR_LOG_DIR = join(LOG_DIR, "star")
-STAR_GENOME_LOG = join(STAR_LOG_DIR, GENCODE_GENOME_NAME, "genome_index.log")
-STAR_PASS1_SJ_FILTERED_LOG = join(STAR_OUTPUT_LOG_DIR, "filter_pass1_sj.log")
-STAR_ALIGN_PASS1_LOG = join(STAR_OUTPUT_LOG_DIR, "align_pass1.log")
-STAR_ALIGN_PASS2_LOG = join(STAR_OUTPUT_LOG_DIR, "align_pass2.log")
+STAR_GENOME_LOG = join(STAR_LOG_DIR, GENCODE_GENOME_NAME, "star_genome_index.log")
+STAR_PASS1_SJ_FILTERED_LOG = join(STAR_OUTPUT_LOG_DIR, "star_filter_pass1_sj.log")
+STAR_ALIGN_PASS1_LOG = join(STAR_OUTPUT_LOG_DIR, "star_pass1.log")
+STAR_ALIGN_PASS2_LOG = join(STAR_OUTPUT_LOG_DIR, "star_pass2.log")
 
 STAR_GENOME_WRAPPER = join(config["wrapper"]["base_url"], "bio/star/index")
 STAR_ALIGN_WRAPPER = join(config["wrapper"]["base_url"], "bio/star/align")
