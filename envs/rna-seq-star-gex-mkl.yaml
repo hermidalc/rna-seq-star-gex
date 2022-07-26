@@ -1,0 +1,9 @@
+name: rna-seq-star-gex
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - libblas=[build=*mkl]
+  - libopenblas
+  - r-base
+  - snakemake
