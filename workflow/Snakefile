@@ -185,11 +185,20 @@ RSEQC_STRAND_INFO_FILE = join(
     RSEQC_RESULTS_DIR, f"{RUN_ID_WILDCARD_STR}_strand_info.txt"
 )
 
-COUNT_MATRIX_RESULTS_DIR = join(RESULTS_DIR, "{sub_dir}", "count_matrix")
-COUNT_MATRIX_LOG_DIR = join(LOG_DIR, "{sub_dir}", "count_matrix")
+SUB_DIRS = list(set(EXPAND_PARAMS["sub_dir"]))
+if len(SUB_DIRS) == 1:
+    COUNT_MATRIX_RESULTS_DIR = join(RESULTS_DIR, SUB_DIRS[0], "count_matrix")
+    COUNT_MATRIX_LOG_DIR = join(LOG_DIR, SUB_DIRS[0], "count_matrix")
+else:
+    COUNT_MATRIX_RESULTS_DIR = join(RESULTS_DIR, STUDY_NAME, "count_matrix")
+    COUNT_MATRIX_LOG_DIR = join(LOG_DIR, STUDY_NAME, "count_matrix")
 
-COUNT_MATRIX_FILE = join(COUNT_MATRIX_RESULTS_DIR, f"{STUDY_NAME}.tsv")
-COUNT_MATRIX_LOG = join(COUNT_MATRIX_LOG_DIR, f"{STUDY_NAME}.log")
+if len(set(EXPAND_PARAMS["sub_dir"])) == 1:
+    COUNT_MATRIX_FILE = join(COUNT_MATRIX_RESULTS_DIR, f"{STUDY_NAME}.tsv")
+    COUNT_MATRIX_LOG = join(COUNT_MATRIX_LOG_DIR, f"{STUDY_NAME}.log")
+else:
+    COUNT_MATRIX_FILE = join(COUNT_MATRIX_RESULTS_DIR, f"{STUDY_NAME}.tsv")
+    COUNT_MATRIX_LOG = join(COUNT_MATRIX_LOG_DIR, f"{STUDY_NAME}.log")
 
 COUNT_MATRIX_WRAPPER = join(config["wrapper"]["base_url"], "bio/star/count_matrix")
 
