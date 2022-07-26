@@ -2,7 +2,7 @@ rule fastp:
     input:
         unpack(get_source_fq),
     params:
-        run_id=RUN_ID_WILDCARD_STR
+        run_id=RUN_ID_WILDCARD_STR,
         extra=config["fastp"]["extra_params"],
     output:
         trim_fq1=TRIMMED_FASTQ1_FILE,
