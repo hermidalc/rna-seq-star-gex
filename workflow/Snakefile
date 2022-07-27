@@ -205,7 +205,7 @@ else:
     COUNTS_LOG_DIR = join(LOG_DIR, STUDY_NAME, "count")
 
 COUNT_MATRIX_FILE = join(COUNTS_RESULTS_DIR, f"{STUDY_NAME}_count_matrix.tsv")
-COUNT_MATRIX_LOG = join(COUNT_MATRIX_LOG_DIR, f"{STUDY_NAME}_count_matrix.log")
+COUNT_MATRIX_LOG = join(COUNTS_LOG_DIR, f"{STUDY_NAME}_count_matrix.log")
 
 COUNT_ESET_FILE = join(COUNTS_RESULTS_DIR, f"{STUDY_NAME}_count_eset.rds")
 COUNT_ESET_LOG = join(COUNTS_LOG_DIR, f"{STUDY_NAME}_count_eset.log")

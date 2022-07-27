@@ -2,7 +2,7 @@ from os.path import basename
 
 
 def get_fq(wildcards):
-    u = units_df.loc[
+    u = UNIT_DF.loc[
         (wildcards.sample, wildcards.unit)
         if hasattr(wildcards, "unit")
         else wildcards.sample,
@@ -17,7 +17,7 @@ def get_fq(wildcards):
 
 
 def get_source_fq(wildcards):
-    u = units_df.loc[
+    u = UNIT_DF.loc[
         (wildcards.sample, wildcards.unit)
         if hasattr(wildcards, "unit")
         else wildcards.sample,
