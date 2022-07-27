@@ -18,16 +18,18 @@ LOG_DIR = "logs"
 RULES_DIR = "rules"
 
 STUDY_NAME = config["study"]["name"]
+SAMPLE_CONFIG_FILE = config["study"]["samples"]
+UNIT_CONFIG_FILE = config["study"]["units"]
 
 SAMPLE_DF = (
-    pd.read_csv(config["study"]["samples"], sep="\t", dtype={"sample_name": str})
+    pd.read_csv(SAMPLE_CONFIG_FILE, sep="\t", dtype={"sample_name": str})
     .set_index("sample_name", drop=False, verify_integrity=True)
     .sort_index()
 )
 validate(SAMPLE_DF, schema="schemas/samples.schema.yaml")
 
 UNIT_DF = pd.read_csv(
-    config["study"]["units"], sep="\t", dtype={"sample_name": str, "unit_name": str}
+    UNIT_CONFIG_FILE, sep="\t", dtype={"sample_name": str, "unit_name": str}
 )
 validate(UNIT_DF, schema="schemas/units.schema.yaml")
 
