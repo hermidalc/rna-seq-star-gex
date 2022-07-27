@@ -15,6 +15,7 @@ configfile: "config/config.yaml"
 RESOURCES_DIR = "resources"
 RESULTS_DIR = "results"
 LOG_DIR = "logs"
+RULES_DIR = "rules"
 
 STUDY_NAME = config["study"]["name"]
 
@@ -57,7 +58,7 @@ GENCODE_BUILD = config["gencode"]["build"]
 GENCODE_REGIONS = config["gencode"]["regions"]
 GENCODE_ANNOT_FMT = config["gencode"]["annot"]["fmt"]
 
-GENCODE_GENOME_NAME = f"gencode_v{GENCODE_RELEASE}_{GENCODE_BUILD}"
+GENCODE_GENOME_NAME = f"gencode_{GENCODE_RELEASE}_{GENCODE_BUILD}"
 
 GENCODE_GENOME_SEQ_FILE = join(GENCODE_RESOURCES_DIR, f"{GENCODE_GENOME_NAME}.fa")
 GENCODE_GENOME_ANNOT_FILE = join(
@@ -69,6 +70,16 @@ GENCODE_GENOME_SEQ_WRAPPER = join(
 )
 GENCODE_GENOME_ANNOT_WRAPPER = join(
     config["wrapper"]["base_url"], "bio/reference/gencode/annotation"
+)
+
+GENCODE_GENE_ANNOT_FILE = join(
+    GENCODE_RESOURCES_DIR, f"{GENCODE_GENOME_NAME}_gene_annot.tsv"
+)
+GENCODE_LOG_DIR = join(LOG_DIR, "gencode")
+GENCODE_GENE_ANNOT_LOG = join(GENCODE_LOG_DIR, f"{GENCODE_GENOME_NAME}_gene_annot.log")
+
+GENCODE_GENE_ANNOT_WRAPPER = join(
+    config["wrapper"]["base_url"], "bio/reference/gtf/gene_annot"
 )
 
 RSEQC_RESOURCES_DIR = join(RESOURCES_DIR, "rseqc")
@@ -203,13 +214,14 @@ else:
 COUNT_MATRIX_WRAPPER = join(config["wrapper"]["base_url"], "bio/star/count_matrix")
 
 
-include: "rules/common.smk"
-include: "rules/genome.smk"
-include: "rules/trim.smk"
-include: "rules/read_length.smk"
-include: "rules/align.smk"
-include: "rules/strand_info.smk"
-include: "rules/count_matrix.smk"
+include: join(RULES_DIR, "common.smk")
+include: join(RULES_DIR, "genome.smk")
+include: join(RULES_DIR, "gene_annot.smk")
+include: join(RULES_DIR, "trim.smk")
+include: join(RULES_DIR, "read_length.smk")
+include: join(RULES_DIR, "align.smk")
+include: join(RULES_DIR, "strand_info.smk")
+include: join(RULES_DIR, "count_matrix.smk")
 
 
 if not exists(LOG_DIR):
@@ -224,6 +236,7 @@ rule all:
     input:
         GENCODE_GENOME_SEQ_FILE,
         GENCODE_GENOME_ANNOT_FILE,
+        GENCODE_GENE_ANNOT_FILE,
         RSEQC_GENOME_ANNOT_FILE,
         STAR_GENOME_DIR,
         expand(TRIMMED_FASTQ1_FILE, zip, **EXPAND_PARAMS),
