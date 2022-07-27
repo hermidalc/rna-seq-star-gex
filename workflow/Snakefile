@@ -199,10 +199,10 @@ RSEQC_STRAND_INFO_FILE = join(
 SUB_DIRS = list(set(EXPAND_PARAMS["sub_dir"]))
 if len(SUB_DIRS) == 1:
     COUNTS_RESULTS_DIR = join(RESULTS_DIR, SUB_DIRS[0], "counts")
-    COUNT_MATRIX_LOG_DIR = join(LOG_DIR, SUB_DIRS[0], "counts_matrix")
+    COUNTS_LOG_DIR = join(LOG_DIR, SUB_DIRS[0], "counts")
 else:
     COUNTS_RESULTS_DIR = join(RESULTS_DIR, STUDY_NAME, "counts")
-    COUNT_MATRIX_LOG_DIR = join(LOG_DIR, STUDY_NAME, "count_matrix")
+    COUNTS_LOG_DIR = join(LOG_DIR, STUDY_NAME, "count")
 
 COUNT_MATRIX_FILE = join(COUNTS_RESULTS_DIR, f"{STUDY_NAME}_count_matrix.tsv")
 COUNT_MATRIX_LOG = join(COUNT_MATRIX_LOG_DIR, f"{STUDY_NAME}_count_matrix.log")
