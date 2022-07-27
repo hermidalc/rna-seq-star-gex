@@ -19,35 +19,35 @@ RULES_DIR = "rules"
 
 STUDY_NAME = config["study"]["name"]
 
-samples_df = (
+SAMPLE_DF = (
     pd.read_csv(config["study"]["samples"], sep="\t", dtype={"sample_name": str})
     .set_index("sample_name", drop=False, verify_integrity=True)
     .sort_index()
 )
-validate(samples_df, schema="schemas/samples.schema.yaml")
+validate(SAMPLE_DF, schema="schemas/samples.schema.yaml")
 
-units_df = pd.read_csv(
+UNIT_DF = pd.read_csv(
     config["study"]["units"], sep="\t", dtype={"sample_name": str, "unit_name": str}
 )
-if units_df["unit_name"].isna().all():
-    units_df = units_df.set_index(
+validate(UNIT_DF, schema="schemas/units.schema.yaml")
+
+if UNIT_DF["unit_name"].isna().all():
+    UNIT_DF = UNIT_DF.set_index(
         "sample_name", drop=False, verify_integrity=True
     ).sort_index()
     RUN_ID_WILDCARD_STR = "{sample}"
-    SAMPLES = units_df["sample_name"].tolist()
+    SAMPLES = UNIT_DF["sample_name"].tolist()
     EXPAND_PARAMS = {"sample": SAMPLES}
 else:
-    units_df.set_index(
+    UNIT_DF.set_index(
         ["sample_name", "unit_name"], drop=False, verify_integrity=True
     ).sort_index()
     RUN_ID_WILDCARD_STR = "{sample}_{unit}"
-    SAMPLES = units_df["sample_name"].tolist()
-    UNITS = units_df["unit_name"].tolist()
+    SAMPLES = UNIT_DF["sample_name"].tolist()
+    UNITS = UNIT_DF["unit_name"].tolist()
     EXPAND_PARAMS = {"sample": SAMPLES, "unit": UNITS}
 
-validate(units_df, schema="schemas/units.schema.yaml")
-
-EXPAND_PARAMS["sub_dir"] = [Path(dirname(fq)).stem for fq in units_df["fq1"]]
+EXPAND_PARAMS["sub_dir"] = [Path(dirname(fq)).stem for fq in UNIT_DF["fq1"]]
 
 GENCODE_RESOURCES_DIR = join(RESOURCES_DIR, "gencode")
 
@@ -198,20 +198,21 @@ RSEQC_STRAND_INFO_FILE = join(
 
 SUB_DIRS = list(set(EXPAND_PARAMS["sub_dir"]))
 if len(SUB_DIRS) == 1:
-    COUNT_MATRIX_RESULTS_DIR = join(RESULTS_DIR, SUB_DIRS[0], "count_matrix")
-    COUNT_MATRIX_LOG_DIR = join(LOG_DIR, SUB_DIRS[0], "count_matrix")
+    COUNTS_RESULTS_DIR = join(RESULTS_DIR, SUB_DIRS[0], "counts")
+    COUNT_MATRIX_LOG_DIR = join(LOG_DIR, SUB_DIRS[0], "counts_matrix")
 else:
-    COUNT_MATRIX_RESULTS_DIR = join(RESULTS_DIR, STUDY_NAME, "count_matrix")
+    COUNTS_RESULTS_DIR = join(RESULTS_DIR, STUDY_NAME, "counts")
     COUNT_MATRIX_LOG_DIR = join(LOG_DIR, STUDY_NAME, "count_matrix")
 
-if len(set(EXPAND_PARAMS["sub_dir"])) == 1:
-    COUNT_MATRIX_FILE = join(COUNT_MATRIX_RESULTS_DIR, f"{STUDY_NAME}.tsv")
-    COUNT_MATRIX_LOG = join(COUNT_MATRIX_LOG_DIR, f"{STUDY_NAME}.log")
-else:
-    COUNT_MATRIX_FILE = join(COUNT_MATRIX_RESULTS_DIR, f"{STUDY_NAME}.tsv")
-    COUNT_MATRIX_LOG = join(COUNT_MATRIX_LOG_DIR, f"{STUDY_NAME}.log")
+COUNT_MATRIX_FILE = join(COUNTS_RESULTS_DIR, f"{STUDY_NAME}_count_matrix.tsv")
+COUNT_MATRIX_LOG = join(COUNT_MATRIX_LOG_DIR, f"{STUDY_NAME}_count_matrix.log")
+
+COUNT_ESET_FILE = join(COUNTS_RESULTS_DIR, f"{STUDY_NAME}_count_eset.rds")
+COUNT_ESET_LOG = join(COUNTS_LOG_DIR, f"{STUDY_NAME}_count_eset.log")
 
 COUNT_MATRIX_WRAPPER = join(config["wrapper"]["base_url"], "bio/star/count_matrix")
+
+COUNT_ESET_WRAPPER = join(config["wrapper"]["base_url"], "bio/biobase/eset")
 
 
 include: join(RULES_DIR, "common.smk")
@@ -222,6 +223,7 @@ include: join(RULES_DIR, "read_length.smk")
 include: join(RULES_DIR, "align.smk")
 include: join(RULES_DIR, "strand_info.smk")
 include: join(RULES_DIR, "count_matrix.smk")
+include: join(RULES_DIR, "count_eset.smk")
 
 
 if not exists(LOG_DIR):
@@ -250,6 +252,7 @@ rule all:
         expand(RSEQC_INFER_EXPERIMENT_FILE, zip, **EXPAND_PARAMS),
         expand(RSEQC_STRAND_INFO_FILE, zip, **EXPAND_PARAMS),
         COUNT_MATRIX_FILE,
+        COUNT_ESET_FILE,
 
 
 def clean(*dirs):
