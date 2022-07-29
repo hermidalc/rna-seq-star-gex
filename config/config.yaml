@@ -30,6 +30,7 @@ trimming:
     extra_params: "--trim_poly_x --detect_adapter_for_pe --correction"
 
 star:
+  tmp_dir: "/tmp"
   index:
     threads: 16
   align:
