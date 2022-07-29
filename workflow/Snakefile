@@ -95,15 +95,15 @@ RSEQC_ANNOT_LOG = join(RSEQC_LOG_DIR, "gtf2bed.log")
 
 RSEQC_ANNOT_WRAPPER = join(config["wrapper"]["base_url"], "bio/gffutils/gtf2bed")
 
-FASTQ_PARENT_DIR = config["fastq"]["parent_dir"]
+FASTQ_DATA_DIR = config["fastq"]["data_dir"]
 FASTQ_PAIRS = config["fastq"]["pairs"]
 FASTQ_PLATFORM = config["fastq"]["platform"]
 
 TRIMMED_RESULTS_DIR = join(RESULTS_DIR, "fastp", "{sub_dir}", RUN_ID_WILDCARD_STR)
 FASTP_LOG_DIR = join(LOG_DIR, "fastp", "{sub_dir}")
 
-FASTQ1_FILE = join(FASTQ_PARENT_DIR, f"{RUN_ID_WILDCARD_STR}_{FASTQ_PAIRS[0]}.fastq.gz")
-FASTQ2_FILE = join(FASTQ_PARENT_DIR, f"{RUN_ID_WILDCARD_STR}_{FASTQ_PAIRS[1]}.fastq.gz")
+FASTQ1_FILE = join(FASTQ_DATA_DIR, f"{RUN_ID_WILDCARD_STR}_{FASTQ_PAIRS[0]}.fastq.gz")
+FASTQ2_FILE = join(FASTQ_DATA_DIR, f"{RUN_ID_WILDCARD_STR}_{FASTQ_PAIRS[1]}.fastq.gz")
 TRIMMED_FASTQ1_FILE = join(
     TRIMMED_RESULTS_DIR,
     f"{RUN_ID_WILDCARD_STR}_{FASTQ_PAIRS[0]}.fastq.gz",

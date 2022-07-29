@@ -1,4 +1,4 @@
-from os.path import basename
+from os.path import basename, join
 
 
 def get_fq(wildcards, trimmed):
@@ -8,11 +8,8 @@ def get_fq(wildcards, trimmed):
         else wildcards.sample,
         ["fq1", "fq2"],
     ].map(
-        lambda x: join(
-            TRIMMED_RESULTS_DIR
-            if config["trimming"]["activate"] and trimmed
-            else FASTQ_PARENT_DIR,
-            basename(x),
-        )
+        lambda x: join(TRIMMED_RESULTS_DIR, basename(x))
+        if config["trimming"]["activate"] and trimmed
+        else join(FASTQ_DATA_DIR, x)
     )
     return {"fq1": f"{u.fq1}", "fq2": f"{u.fq2}"}
