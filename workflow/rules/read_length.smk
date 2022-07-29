@@ -8,7 +8,7 @@ localrules:
 
 rule read_length_histogram:
     input:
-        unpack(get_fq),
+        unpack(lambda w: get_fq(w, trimmed=True)),
     output:
         READ_LENGTH_HISTOGRAM_FILE,
     resources:

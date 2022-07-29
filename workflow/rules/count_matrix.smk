@@ -7,7 +7,7 @@ rule star_count_matrix:
         counts=expand(STAR_READ_COUNT_FILE, zip, **EXPAND_PARAMS),
         strand=expand(RSEQC_STRAND_INFO_FILE, zip, **EXPAND_PARAMS),
     params:
-        samples=SAMPLES,
+        samples=SAMPLE_LABELS,
     output:
         COUNT_MATRIX_FILE,
     log:

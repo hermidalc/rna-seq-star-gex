@@ -16,11 +16,12 @@ rule star_genome_index:
 
 rule star_align_pass1:
     input:
-        unpack(get_fq),
+        unpack(lambda w: get_fq(w, trimmed=True)),
         index=STAR_GENOME_DIR,
         read_length=READ_LENGTH_FILE,
     params:
         out_dir=STAR_PASS1_OUTPUT_DIR,
+        tmp_dir=STAR_TEMP_DIR,
         extra=f"--outSAMtype None",
     output:
         STAR_PASS1_SJ_FILE,
@@ -75,13 +76,14 @@ rule star_filter_pass1_sj:
 
 rule star_align_pass2:
     input:
-        unpack(get_fq),
+        unpack(lambda w: get_fq(w, trimmed=True)),
         index=STAR_GENOME_DIR,
         gtf=GENCODE_GENOME_ANNOT_FILE,
         read_length=READ_LENGTH_FILE,
         sj=STAR_PASS1_SJ_FILTERED_FILE,
     params:
         out_dir=STAR_PASS2_OUTPUT_DIR,
+        tmp_dir=STAR_TEMP_DIR,
         extra=(
             "--chimOutType Junctions SeparateSAMold WithinBAM SoftClip"
             f" --outSAMattrRGline {SAM_ATTR_RG_LINE}"

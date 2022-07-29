@@ -21,11 +21,9 @@ STUDY_NAME = config["study"]["name"]
 SAMPLE_CONFIG_FILE = config["study"]["samples"]
 UNIT_CONFIG_FILE = config["study"]["units"]
 
-SAMPLE_DF = (
-    pd.read_csv(SAMPLE_CONFIG_FILE, sep="\t", dtype={"sample_name": str})
-    .set_index("sample_name", drop=False, verify_integrity=True)
-    .sort_index()
-)
+SAMPLE_DF = pd.read_csv(
+    SAMPLE_CONFIG_FILE, sep="\t", dtype={"sample_name": str, "sample_label": str}
+).set_index("sample_name", drop=False, verify_integrity=True)
 validate(SAMPLE_DF, schema="schemas/samples.schema.yaml")
 
 UNIT_DF = pd.read_csv(
@@ -34,20 +32,23 @@ UNIT_DF = pd.read_csv(
 validate(UNIT_DF, schema="schemas/units.schema.yaml")
 
 if UNIT_DF["unit_name"].isna().all():
-    UNIT_DF = UNIT_DF.set_index(
-        "sample_name", drop=False, verify_integrity=True
-    ).sort_index()
+    UNIT_DF = UNIT_DF.set_index("sample_name", drop=False, verify_integrity=True)
     RUN_ID_WILDCARD_STR = "{sample}"
     SAMPLES = UNIT_DF["sample_name"].tolist()
     EXPAND_PARAMS = {"sample": SAMPLES}
 else:
-    UNIT_DF.set_index(
-        ["sample_name", "unit_name"], drop=False, verify_integrity=True
-    ).sort_index()
+    UNIT_DF.set_index(["sample_name", "unit_name"], drop=False, verify_integrity=True)
     RUN_ID_WILDCARD_STR = "{sample}_{unit}"
     SAMPLES = UNIT_DF["sample_name"].tolist()
     UNITS = UNIT_DF["unit_name"].tolist()
     EXPAND_PARAMS = {"sample": SAMPLES, "unit": UNITS}
+
+SAMPLE_DF = SAMPLE_DF.loc[SAMPLES]
+
+SAMPLE_LABELS = [
+    n if pd.isna(l) else l
+    for n, l in zip(SAMPLE_DF["sample_name"], SAMPLE_DF["sample_label"])
+]
 
 EXPAND_PARAMS["sub_dir"] = [Path(dirname(fq)).stem for fq in UNIT_DF["fq1"]]
 
@@ -144,6 +145,7 @@ STAR_OUTPUT_DIR = join(STAR_RESULTS_DIR, RUN_ID_WILDCARD_STR)
 STAR_PASS1_OUTPUT_DIR = join(STAR_OUTPUT_DIR, "_STARpass1")
 STAR_PASS2_OUTPUT_DIR = join(STAR_OUTPUT_DIR, "_STARpass2")
 STAR_OUTPUT_LOG_DIR = join(STAR_LOG_DIR, RUN_ID_WILDCARD_STR)
+STAR_TEMP_DIR = config["star"]["tmp_dir"]
 
 STAR_PASS1_SJ_FILE = join(STAR_PASS1_OUTPUT_DIR, "SJ.out.tab")
 STAR_PASS1_SJ_FILTERED_FILE = join(STAR_PASS1_OUTPUT_DIR, "SJ.filtered.out.tab")
