@@ -1,4 +1,4 @@
-rule get_gencode_genome_seq:
+rule gencode_genome_seq:
     params:
         protocol=GENCODE_PROTOCOL,
         species=GENCODE_SPECIES,
@@ -11,7 +11,7 @@ rule get_gencode_genome_seq:
         GENCODE_GENOME_SEQ_WRAPPER
 
 
-rule get_gencode_genome_annot:
+rule gencode_genome_annot:
     params:
         protocol=GENCODE_PROTOCOL,
         species=GENCODE_SPECIES,
