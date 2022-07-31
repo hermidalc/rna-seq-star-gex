@@ -5,6 +5,8 @@ localrules:
 rule star_genome_index:
     input:
         fastas=GENCODE_GENOME_SEQ_FILE,
+    params:
+        tmp_dir=STAR_TEMP_DIR,
     output:
         directory(STAR_GENOME_DIR),
     threads: config["star"]["index"]["threads"]
