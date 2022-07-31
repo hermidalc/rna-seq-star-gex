@@ -2,11 +2,11 @@ import pandas as pd
 
 
 localrules:
-    read_length_histogram,
-    max_read_length,
+    bbmap_read_length_histogram,
+    bbmap_max_read_length,
 
 
-rule read_length_histogram:
+rule bbmap_read_length_histogram:
     input:
         unpack(lambda w: get_fq(w, trimmed=True)),
     output:
@@ -19,7 +19,7 @@ rule read_length_histogram:
         READ_LENGTH_WRAPPER
 
 
-rule max_read_length:
+rule bbmap_max_read_length:
     input:
         READ_LENGTH_HISTOGRAM_FILE,
     output:
