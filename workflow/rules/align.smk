@@ -17,6 +17,7 @@ rule star_genome_index:
 rule star_align_pass1:
     input:
         unpack(lambda w: get_fq(w, trimmed=True)),
+        gtf=GENCODE_GENOME_ANNOT_FILE,
         index=STAR_GENOME_DIR,
         read_length=READ_LENGTH_FILE,
     params:
