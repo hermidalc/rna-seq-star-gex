@@ -1,5 +1,6 @@
 name: rna-seq-star-gex
 channels:
   - bioconda
+  - conda-forge
 dependencies:
   - snakemake
