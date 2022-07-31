@@ -11,8 +11,6 @@ rule bbmap_read_length_histogram:
         unpack(lambda w: get_fq(w, trimmed=True)),
     output:
         READ_LENGTH_HISTOGRAM_FILE,
-    resources:
-        read_length_cores=1,
     log:
         READ_LENGTH_HISTOGRAM_LOG,
     wrapper:
