@@ -88,15 +88,15 @@ rule star_align_pass2:
         out_dir=STAR_PASS2_OUTPUT_DIR,
         tmp_dir=STAR_TEMP_DIR,
         extra=(
-            " --chimSegmentMin 15"
-            " --chimOutType Junctions SeparateSAMold WithinBAM SoftClip"
-            " --limitSjdbInsertNsj 1200000"
-            f" --outSAMattrRGline {SAM_ATTR_RG_LINE}"
-            f" --outSAMtype BAM {STAR_BAM_SORT}"
-            " --outSAMattributes All"
-            " --outSAMunmapped Within"
-            " --outFilterType BySJout"
-            " --quantMode GeneCounts"
+            "--chimSegmentMin 15"
+            "--chimOutType Junctions SeparateSAMold WithinBAM SoftClip"
+            "--limitSjdbInsertNsj 1200000"
+            f"--outSAMattrRGline {SAM_ATTR_RG_LINE}"
+            f"--outSAMtype BAM {STAR_BAM_SORT}"
+            "--outSAMattributes All"
+            "--outSAMunmapped Within"
+            "--outFilterType BySJout"
+            "--quantMode GeneCounts"
         ),
     output:
         bam_file=STAR_BAM_FILE,
