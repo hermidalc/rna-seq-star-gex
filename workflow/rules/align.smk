@@ -25,7 +25,20 @@ rule star_align_pass1:
     params:
         out_dir=STAR_PASS1_OUTPUT_DIR,
         tmp_dir=STAR_TEMP_DIR,
-        extra=f"--outSAMtype None",
+        extra=(
+            " --alignIntronMax 1000000"
+            " --alignIntronMin 20"
+            " --alignMatesGapMax 1000000"
+            " --alignSJDBoverhangMin 1"
+            " --alignSJoverhangMin 8"
+            " --alignSoftClipAtReferenceEnds Yes"
+            " --limitSjdbInsertNsj 1200000"
+            " --outFilterIntronMotifs None"
+            " --outFilterMismatchNmax 999"
+            " --outFilterMismatchNoverLmax 0.1"
+            " --outFilterMultimapNmax 20"
+            " --outSAMtype None"
+        ),
     output:
         STAR_PASS1_SJ_FILE,
     threads: config["star"]["index"]["threads"]
@@ -88,14 +101,27 @@ rule star_align_pass2:
         out_dir=STAR_PASS2_OUTPUT_DIR,
         tmp_dir=STAR_TEMP_DIR,
         extra=(
-            "--chimSegmentMin 15"
+            " --alignIntronMax 1000000"
+            " --alignIntronMin 20"
+            " --alignMatesGapMax 1000000"
+            " --alignSJDBoverhangMin 1"
+            " --alignSJoverhangMin 8"
+            " --alignSoftClipAtReferenceEnds Yes"
+            " --chimJunctionOverhangMin 15"
+            " --chimMainSegmentMultNmax 1"
+            " --chimSegmentMin 15"
             " --chimOutType Junctions SeparateSAMold WithinBAM SoftClip"
             " --limitSjdbInsertNsj 1200000"
+            " --outFilterIntronMotifs None"
+            " --outFilterMismatchNmax 999"
+            " --outFilterMismatchNoverLmax 0.1"
+            " --outFilterMultimapNmax 20"
+            " --outFilterType BySJout"
             f" --outSAMattrRGline {SAM_ATTR_RG_LINE}"
             f" --outSAMtype BAM {STAR_BAM_SORT}"
+            " --outSAMstrandField intronMotif"
             " --outSAMattributes All"
             " --outSAMunmapped Within"
-            " --outFilterType BySJout"
             " --quantMode GeneCounts"
         ),
     output:
