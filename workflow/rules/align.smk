@@ -5,10 +5,10 @@ localrules:
 rule star_genome_index:
     input:
         fastas=GENCODE_GENOME_SEQ_FILE,
-    params:
-        tmp_dir=STAR_TEMP_DIR,
     output:
         directory(STAR_GENOME_DIR),
+    resources:
+        tmp_dir=TEMP_DIR,
     threads: config["star"]["index"]["threads"]
     log:
         STAR_GENOME_LOG,
@@ -24,7 +24,6 @@ rule star_align_pass1:
         read_length=READ_LENGTH_FILE,
     params:
         out_dir=STAR_PASS1_OUTPUT_DIR,
-        tmp_dir=STAR_TEMP_DIR,
         extra=(
             " --alignIntronMax 1000000"
             " --alignIntronMin 20"
@@ -41,6 +40,8 @@ rule star_align_pass1:
         ),
     output:
         STAR_PASS1_SJ_FILE,
+    resources:
+        tmp_dir=TEMP_DIR,
     threads: config["star"]["index"]["threads"]
     log:
         STAR_ALIGN_PASS1_LOG,
@@ -99,7 +100,6 @@ rule star_align_pass2:
         sj=STAR_PASS1_SJ_FILTERED_FILE,
     params:
         out_dir=STAR_PASS2_OUTPUT_DIR,
-        tmp_dir=STAR_TEMP_DIR,
         extra=(
             " --alignIntronMax 1000000"
             " --alignIntronMin 20"
@@ -129,6 +129,8 @@ rule star_align_pass2:
         count_file=STAR_READ_COUNT_FILE,
     log:
         STAR_ALIGN_PASS2_LOG,
+    resources:
+        tmp_dir=TEMP_DIR,
     threads: config["star"]["align"]["threads"]
     wrapper:
         STAR_ALIGN_WRAPPER

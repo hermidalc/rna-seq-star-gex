@@ -2,6 +2,8 @@
 wrapper:
   base_url: "file:///home/hermidalc/projects/github/hermidalc/snakemake-wrappers/"
 
+tmp_dir: "/home/hermidalc/tmp"
+
 study:
   name: "R10_pEtn"
   samples: "config/samples.tsv"
@@ -19,7 +21,7 @@ gencode:
     length_col: "Length"
 
 fastq:
-  parent_dir: "data/fastq"
+  data_dir: "data/fastq"
   pairs: ["R1_001", "R2_001"]
   platform: "Illumina"
 
@@ -30,7 +32,6 @@ trimming:
     extra_params: "--trim_poly_x --detect_adapter_for_pe --correction"
 
 star:
-  tmp_dir: "/tmp"
   index:
     threads: 16
   align:

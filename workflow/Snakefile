@@ -21,6 +21,8 @@ STUDY_NAME = config["study"]["name"]
 SAMPLE_CONFIG_FILE = config["study"]["samples"]
 UNIT_CONFIG_FILE = config["study"]["units"]
 
+TEMP_DIR = config["tmp_dir"]
+
 SAMPLE_DF = pd.read_csv(
     SAMPLE_CONFIG_FILE, sep="\t", dtype={"sample_name": str, "sample_label": str}
 ).set_index("sample_name", drop=False, verify_integrity=True)
@@ -145,7 +147,6 @@ STAR_OUTPUT_DIR = join(STAR_RESULTS_DIR, RUN_ID_WILDCARD_STR)
 STAR_PASS1_OUTPUT_DIR = join(STAR_OUTPUT_DIR, "_STARpass1")
 STAR_PASS2_OUTPUT_DIR = join(STAR_OUTPUT_DIR, "_STARpass2")
 STAR_OUTPUT_LOG_DIR = join(STAR_LOG_DIR, RUN_ID_WILDCARD_STR)
-STAR_TEMP_DIR = config["star"]["tmp_dir"]
 
 STAR_PASS1_SJ_FILE = join(STAR_PASS1_OUTPUT_DIR, "SJ.out.tab")
 STAR_PASS1_SJ_FILTERED_FILE = join(STAR_PASS1_OUTPUT_DIR, "SJ.filtered.out.tab")
