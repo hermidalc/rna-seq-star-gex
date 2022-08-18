@@ -1,21 +1,23 @@
 import re
 from glob import glob
-from os import getcwd, mkdir, remove, walk
+from os import getcwd, remove, walk
 from os.path import dirname, exists, isdir, join, splitext
 from pathlib import Path
 from shutil import rmtree
 
 import pandas as pd
-from snakemake.utils import validate
+from snakemake.utils import makedirs, validate
 
 
-configfile: "config/config.yaml"
-
-
+CONFIG_DIR = "config"
 RESOURCES_DIR = "resources"
 RESULTS_DIR = "results"
 LOG_DIR = "logs"
 RULES_DIR = "rules"
+
+
+configfile: "config/config.yaml"
+
 
 STUDY_NAME = config["study"]["name"]
 SAMPLE_CONFIG_FILE = config["study"]["samples"]
@@ -52,7 +54,7 @@ SAMPLE_LABELS = [
     for n, l in zip(SAMPLE_DF["sample_name"], SAMPLE_DF["sample_label"])
 ]
 
-EXPAND_PARAMS["sub_dir"] = [Path(dirname(fq)).stem for fq in UNIT_DF["fq1"]]
+EXPAND_PARAMS["sub_dir"] = [Path(dirname(fq)).name for fq in UNIT_DF["fq1"]]
 
 GENCODE_RESOURCES_DIR = join(RESOURCES_DIR, "gencode")
 
@@ -99,25 +101,28 @@ RSEQC_ANNOT_WRAPPER = join(config["wrapper"]["base_url"], "bio/gffutils/gtf2bed"
 
 FASTQ_DATA_DIR = config["fastq"]["data_dir"]
 FASTQ_PAIRS = config["fastq"]["pairs"]
+FASTQ_EXT = config["fastq"]["ext"]
 FASTQ_PLATFORM = config["fastq"]["platform"]
 
 TRIMMED_RESULTS_DIR = join(RESULTS_DIR, "fastp", "{sub_dir}", RUN_ID_WILDCARD_STR)
 FASTP_LOG_DIR = join(LOG_DIR, "fastp", "{sub_dir}")
 
-FASTQ1_FILE = join(FASTQ_DATA_DIR, f"{RUN_ID_WILDCARD_STR}_{FASTQ_PAIRS[0]}.fastq.gz")
-FASTQ2_FILE = join(FASTQ_DATA_DIR, f"{RUN_ID_WILDCARD_STR}_{FASTQ_PAIRS[1]}.fastq.gz")
+FASTQ1_FILE = join(FASTQ_DATA_DIR, f"{RUN_ID_WILDCARD_STR}_{FASTQ_PAIRS[0]}{FASTQ_EXT}")
+FASTQ2_FILE = join(FASTQ_DATA_DIR, f"{RUN_ID_WILDCARD_STR}_{FASTQ_PAIRS[1]}{FASTQ_EXT}")
 TRIMMED_FASTQ1_FILE = join(
     TRIMMED_RESULTS_DIR,
-    f"{RUN_ID_WILDCARD_STR}_{FASTQ_PAIRS[0]}.fastq.gz",
+    f"{RUN_ID_WILDCARD_STR}_{FASTQ_PAIRS[0]}{FASTQ_EXT}",
 )
 TRIMMED_FASTQ2_FILE = join(
     TRIMMED_RESULTS_DIR,
-    f"{RUN_ID_WILDCARD_STR}_{FASTQ_PAIRS[1]}.fastq.gz",
+    f"{RUN_ID_WILDCARD_STR}_{FASTQ_PAIRS[1]}{FASTQ_EXT}",
 )
 
-TRIMMED_UNPAIR1_FILE = join(TRIMMED_RESULTS_DIR, f"{RUN_ID_WILDCARD_STR}_U1.fastq.gz")
-TRIMMED_UNPAIR2_FILE = join(TRIMMED_RESULTS_DIR, f"{RUN_ID_WILDCARD_STR}_U2.fastq.gz")
-FAILED_READS_FILE = join(TRIMMED_RESULTS_DIR, f"{RUN_ID_WILDCARD_STR}.failed.fastq.gz")
+TRIMMED_UNPAIR1_FILE = join(TRIMMED_RESULTS_DIR, f"{RUN_ID_WILDCARD_STR}_U1{FASTQ_EXT}")
+TRIMMED_UNPAIR2_FILE = join(TRIMMED_RESULTS_DIR, f"{RUN_ID_WILDCARD_STR}_U2{FASTQ_EXT}")
+FAILED_READS_FILE = join(
+    TRIMMED_RESULTS_DIR, f"{RUN_ID_WILDCARD_STR}.failed{FASTQ_EXT}"
+)
 FASTP_HTML_REPORT_FILE = join(TRIMMED_RESULTS_DIR, f"{RUN_ID_WILDCARD_STR}_report.html")
 FASTP_JSON_REPORT_FILE = join(TRIMMED_RESULTS_DIR, f"{RUN_ID_WILDCARD_STR}_report.json")
 
@@ -231,8 +236,7 @@ include: join(RULES_DIR, "count_matrix.smk")
 include: join(RULES_DIR, "count_eset.smk")
 
 
-if not exists(LOG_DIR):
-    mkdir(LOG_DIR, mode=0o755)
+makedirs(LOG_DIR)
 
 
 wildcard_constraints:

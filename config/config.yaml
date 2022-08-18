@@ -23,6 +23,7 @@ gencode:
 fastq:
   data_dir: "data/fastq"
   pairs: ["R1_001", "R2_001"]
+  ext: ".fastq.gz"
   platform: "Illumina"
 
 trimming:
