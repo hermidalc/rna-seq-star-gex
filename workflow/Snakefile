@@ -6,7 +6,7 @@ from pathlib import Path
 from shutil import rmtree
 
 import pandas as pd
-from snakemake.utils import makedirs, validate
+from snakemake.utils import validate
 
 
 CONFIG_DIR = "config"
@@ -232,9 +232,6 @@ include: join(RULES_DIR, "align.smk")
 include: join(RULES_DIR, "strand_info.smk")
 include: join(RULES_DIR, "count_matrix.smk")
 include: join(RULES_DIR, "count_eset.smk")
-
-
-makedirs(LOG_DIR)
 
 
 wildcard_constraints:
