@@ -1,6 +1,6 @@
 import re
 from glob import glob
-from os import getcwd, remove, walk
+from os import getcwd, walk
 from os.path import dirname, exists, isdir, join, splitext
 from pathlib import Path
 from shutil import rmtree
@@ -261,15 +261,14 @@ rule all:
 
 def clean(*dirs):
     for clean_dir in dirs:
-        for file in glob(join(clean_dir, "*")):
-            if isdir(file):
-                rmtree(file)
-            else:
-                remove(file)
+        if exists(clean_dir):
+            rmtree(clean_dir)
         for dirpath, dirnames, filenames in sorted(walk(getcwd())):
             for name in dirnames:
                 if name == "__pycache__":
-                    rmtree(join(dirpath, name))
+                    pycache_dir = join(dirpath, name)
+                    if exists(pycache_dir):
+                        rmtree(pycache_dir)
 
 
 rule clean:
