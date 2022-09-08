@@ -7,6 +7,7 @@ rule gencode_genome_seq:
         regions=GENCODE_REGIONS,
     output:
         GENCODE_GENOME_SEQ_FILE,
+    retries: config["download"]["retries"]
     wrapper:
         GENCODE_GENOME_SEQ_WRAPPER
 
@@ -20,5 +21,6 @@ rule gencode_genome_annot:
         annot_fmt=GENCODE_ANNOT_FMT,
     output:
         GENCODE_GENOME_ANNOT_FILE,
+    retries: config["download"]["retries"]
     wrapper:
         GENCODE_GENOME_ANNOT_WRAPPER

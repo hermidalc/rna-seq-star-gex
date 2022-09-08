@@ -2,10 +2,13 @@
 wrapper:
   base_url: "file:///home/hermidalc/projects/github/hermidalc/snakemake-wrappers/"
 
-tmp_dir: "/home/hermidalc/tmp"
+tmp_dir: "/tmp"
+
+download:
+  retries: 5
 
 study:
-  name: "R10_pEtn"
+  name: "study"
   samples: "config/samples.tsv"
   units: "config/units.tsv"
 
