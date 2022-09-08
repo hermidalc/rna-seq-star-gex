@@ -1,6 +1,3 @@
-import pandas as pd
-
-
 localrules:
     bbmap_read_length_histogram,
     bbmap_max_read_length,
@@ -25,6 +22,8 @@ rule bbmap_max_read_length:
     log:
         READ_LENGTH_LOG,
     run:
+        import pandas as pd
+
         cols = [
             "length",
             "reads",
