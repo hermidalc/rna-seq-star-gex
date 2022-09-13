@@ -1,7 +1,6 @@
 import re
-from glob import glob
 from os import getcwd, walk
-from os.path import dirname, exists, isdir, join, splitext
+from os.path import dirname, exists, join
 from pathlib import Path
 from shutil import rmtree
 
