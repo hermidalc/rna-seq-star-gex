@@ -103,7 +103,7 @@ FASTQ_PAIRS = config["fastq"]["pairs"]
 FASTQ_EXT = config["fastq"]["ext"]
 FASTQ_PLATFORM = config["fastq"]["platform"]
 
-TRIMMED_RESULTS_DIR = join(RESULTS_DIR, "fastp", "{sub_dir}", RUN_ID_WILDCARD_STR)
+TRIMMED_RESULTS_DIR = join(RESULTS_DIR, "fastp", "{sub_dir}")
 FASTP_LOG_DIR = join(LOG_DIR, "fastp", "{sub_dir}")
 
 FASTQ1_FILE = join(

@@ -29,7 +29,7 @@ fastq:
   ext: "fastq.gz"
   platform: "Illumina"
 
-trimming:
+trim:
   activate: true
   fastp:
     threads: 8
