@@ -9,7 +9,7 @@ def get_fq(wildcards, trimmed):
         ["fq1", "fq2"],
     ].map(
         lambda x: join(TRIMMED_RESULTS_DIR, basename(x))
-        if config["trimming"]["activate"] and trimmed
+        if config["trim"]["activate"] and trimmed
         else join(FASTQ_DATA_DIR, x)
     )
     return {"fq1": f"{u.fq1}", "fq2": f"{u.fq2}"}
