@@ -226,7 +226,6 @@ COUNT_ESET_FILE = join(COUNTS_RESULTS_DIR, f"{STUDY_NAME}_count_eset.rds")
 COUNT_ESET_LOG = join(COUNTS_LOG_DIR, f"{STUDY_NAME}_count_eset.log")
 
 COUNT_MATRIX_WRAPPER = join(config["wrapper"]["base_url"], "bio/star/count_matrix")
-
 COUNT_ESET_WRAPPER = join(config["wrapper"]["base_url"], "bio/biobase/eset")
 
 
