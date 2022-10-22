@@ -237,8 +237,7 @@ include: join(RULES_DIR, "trim.smk")
 include: join(RULES_DIR, "read_length.smk")
 include: join(RULES_DIR, "align.smk")
 include: join(RULES_DIR, "strand_info.smk")
-include: join(RULES_DIR, "count_matrix.smk")
-include: join(RULES_DIR, "count_eset.smk")
+include: join(RULES_DIR, "counts.smk")
 
 
 wildcard_constraints:
