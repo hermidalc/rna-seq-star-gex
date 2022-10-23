@@ -1,7 +1,6 @@
 import re
 from os import getcwd, walk
 from os.path import dirname, exists, join
-from pathlib import Path
 from shutil import rmtree
 
 import pandas as pd
@@ -35,12 +34,14 @@ UNIT_DF = pd.read_csv(
 validate(UNIT_DF, schema="schemas/units.schema.yaml")
 
 if UNIT_DF["unit_name"].isna().all():
-    UNIT_DF = UNIT_DF.set_index("sample_name", drop=False, verify_integrity=True)
+    UNIT_DF.set_index("sample_name", inplace=True, drop=False, verify_integrity=True)
     RUN_ID_WILDCARD_STR = "{sample}"
     SAMPLES = UNIT_DF["sample_name"].tolist()
     EXPAND_PARAMS = {"sample": SAMPLES}
 else:
-    UNIT_DF.set_index(["sample_name", "unit_name"], drop=False, verify_integrity=True)
+    UNIT_DF.set_index(
+        ["sample_name", "unit_name"], inplace=True, drop=False, verify_integrity=True
+    )
     RUN_ID_WILDCARD_STR = "{sample}_{unit}"
     SAMPLES = UNIT_DF["sample_name"].tolist()
     UNITS = UNIT_DF["unit_name"].tolist()
@@ -53,7 +54,7 @@ SAMPLE_LABELS = [
     for n, l in zip(SAMPLE_DF["sample_name"], SAMPLE_DF["sample_label"])
 ]
 
-EXPAND_PARAMS["sub_dir"] = [Path(dirname(fq)).name for fq in UNIT_DF["fq1"]]
+EXPAND_PARAMS["sub_dir"] = [dirname(fq) for fq in UNIT_DF["fq1"]]
 
 GENCODE_RESOURCES_DIR = join(RESOURCES_DIR, "gencode")
 
