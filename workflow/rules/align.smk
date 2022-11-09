@@ -8,7 +8,7 @@ rule star_genome_index:
     output:
         directory(STAR_GENOME_DIR),
     resources:
-        tmp_dir=TEMP_DIR,
+        tmpdir=TEMP_DIR,
     threads: config["star"]["index"]["threads"]
     log:
         STAR_GENOME_LOG,
@@ -41,7 +41,7 @@ rule star_align_pass1:
     output:
         STAR_PASS1_SJ_FILE,
     resources:
-        tmp_dir=TEMP_DIR,
+        tmpdir=TEMP_DIR,
     threads: config["star"]["index"]["threads"]
     log:
         STAR_ALIGN_PASS1_LOG,
@@ -130,7 +130,7 @@ rule star_align_pass2:
     log:
         STAR_ALIGN_PASS2_LOG,
     resources:
-        tmp_dir=TEMP_DIR,
+        tmpdir=TEMP_DIR,
     threads: config["star"]["align"]["threads"]
     wrapper:
         STAR_ALIGN_WRAPPER
