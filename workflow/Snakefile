@@ -12,6 +12,7 @@ RESOURCES_DIR = "resources"
 RESULTS_DIR = "results"
 LOG_DIR = "logs"
 RULES_DIR = "rules"
+REPORT_DIR = "report"
 
 
 configfile: "config/config.yaml"
@@ -212,13 +213,11 @@ RSEQC_STRAND_INFO_FILE = join(
     RSEQC_RESULTS_DIR, f"{RUN_ID_WILDCARD_STR}_strand_info.txt"
 )
 
-SUB_DIRS = list(set(EXPAND_PARAMS["sub_dir"]))
-if len(SUB_DIRS) == 1:
-    COUNTS_RESULTS_DIR = join(RESULTS_DIR, "counts", SUB_DIRS[0])
-    COUNTS_LOG_DIR = join(LOG_DIR, "counts", SUB_DIRS[0])
-else:
-    COUNTS_RESULTS_DIR = join(RESULTS_DIR, "counts", STUDY_NAME)
-    COUNTS_LOG_DIR = join(LOG_DIR, "counts", STUDY_NAME)
+COUNTS_RESULTS_DIR = join(RESULTS_DIR, "counts", STUDY_NAME)
+COUNTS_LOG_DIR = join(LOG_DIR, "counts", STUDY_NAME)
+
+QC_RESULTS_DIR = join(RESULTS_DIR, "qc", STUDY_NAME)
+QC_LOG_DIR = join(LOG_DIR, "qc", STUDY_NAME)
 
 COUNT_MATRIX_FILE = join(COUNTS_RESULTS_DIR, f"{STUDY_NAME}_count_matrix.tsv")
 COUNT_MATRIX_LOG = join(COUNTS_LOG_DIR, f"{STUDY_NAME}_count_matrix.log")
@@ -228,6 +227,17 @@ COUNT_ESET_LOG = join(COUNTS_LOG_DIR, f"{STUDY_NAME}_count_eset.log")
 
 COUNT_MATRIX_WRAPPER = join(config["wrapper"]["base_url"], "bio/star/count_matrix")
 COUNT_ESET_WRAPPER = join(config["wrapper"]["base_url"], "bio/biobase/eset")
+
+STAR_INDEX_THREADS = (
+    workflow.cores
+    if config["star"]["index"]["threads"] == "all"
+    else config["star"]["index"]["threads"]
+)
+STAR_ALIGN_THREADS = (
+    workflow.cores
+    if config["star"]["align"]["threads"] == "all"
+    else config["star"]["align"]["threads"]
+)
 
 
 include: join(RULES_DIR, "common.smk")
