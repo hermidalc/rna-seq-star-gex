@@ -37,10 +37,10 @@ trim:
 
 star:
   index:
-    threads: 16
+    threads: all
   align:
     sort_bam: true
-    threads: 16
+    threads: all
   # regex specific to GTF style
   sj_filter_chr_regex: "^(?!chrM$).+$"  # "chr([1-9][0-9]?|X|Y)"
 
