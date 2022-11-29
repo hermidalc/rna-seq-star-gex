@@ -1,8 +1,3 @@
-localrules:
-    bbmap_read_length_histogram,
-    bbmap_max_read_length,
-
-
 rule bbmap_read_length_histogram:
     input:
         unpack(lambda w: get_fq(w, trimmed=True)),

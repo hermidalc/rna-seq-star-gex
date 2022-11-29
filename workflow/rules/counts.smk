@@ -1,8 +1,3 @@
-localrules:
-    star_count_matrix,
-    count_eset,
-
-
 rule star_count_matrix:
     input:
         counts=expand(STAR_READ_COUNT_FILE, zip, **EXPAND_PARAMS),

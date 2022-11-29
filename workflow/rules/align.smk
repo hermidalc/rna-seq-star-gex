@@ -1,7 +1,3 @@
-localrules:
-    star_filter_pass1_sj,
-
-
 rule star_genome_index:
     input:
         fastas=GENCODE_GENOME_SEQ_FILE,
