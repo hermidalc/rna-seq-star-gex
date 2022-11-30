@@ -1,11 +1,11 @@
 import re
 from os import getcwd, walk
 from os.path import dirname, exists, join
+from tempfile import gettempdir
 from shutil import rmtree
 
 import pandas as pd
 from snakemake.utils import validate
-
 
 CONFIG_DIR = "config"
 RESOURCES_DIR = "resources"
@@ -15,14 +15,14 @@ RULES_DIR = "rules"
 REPORT_DIR = "report"
 
 
-configfile: "config/config.yaml"
+configfile: join(CONFIG_DIR, "config.yaml")
 
 
 STUDY_NAME = config["study"]["name"]
 SAMPLE_CONFIG_FILE = config["study"]["samples"]
 UNIT_CONFIG_FILE = config["study"]["units"]
 
-TEMP_DIR = config["tmp_dir"]
+TEMP_DIR = config["tmp_dir"] if config["tmp_dir"] else gettempdir()
 
 SAMPLE_DF = pd.read_csv(
     SAMPLE_CONFIG_FILE, sep="\t", dtype={"sample_name": str, "sample_label": str}
@@ -58,6 +58,8 @@ SAMPLE_LABELS = [
 EXPAND_PARAMS["sub_dir"] = [dirname(fq) for fq in UNIT_DF["fq1"]]
 
 GENCODE_RESOURCES_DIR = join(RESOURCES_DIR, "gencode")
+STAR_RESOURCES_DIR = join(RESOURCES_DIR, "star")
+RSEQC_RESOURCES_DIR = join(RESOURCES_DIR, "rseqc")
 
 GENCODE_PROTOCOL = config["gencode"]["protocol"]
 GENCODE_SPECIES = config["gencode"]["species"]
@@ -66,44 +68,22 @@ GENCODE_BUILD = config["gencode"]["build"]
 GENCODE_REGIONS = config["gencode"]["regions"]
 GENCODE_ANNOT_FMT = config["gencode"]["annot"]["fmt"]
 
-GENCODE_GENOME_NAME = f"gencode_{GENCODE_RELEASE}_{GENCODE_BUILD}"
-
-GENCODE_GENOME_SEQ_FILE = join(GENCODE_RESOURCES_DIR, f"{GENCODE_GENOME_NAME}.fa")
-GENCODE_GENOME_ANNOT_FILE = join(
-    GENCODE_RESOURCES_DIR, f"{GENCODE_GENOME_NAME}.{GENCODE_ANNOT_FMT.lower()}"
-)
-
-GENCODE_GENOME_SEQ_WRAPPER = join(
-    config["wrapper"]["base_url"], "bio/reference/gencode/sequence"
-)
-GENCODE_GENOME_ANNOT_WRAPPER = join(
-    config["wrapper"]["base_url"], "bio/reference/gencode/annotation"
-)
-
-GENCODE_GENE_ANNOT_FILE = join(
-    GENCODE_RESOURCES_DIR, f"{GENCODE_GENOME_NAME}_gene_annot.tsv"
-)
-GENCODE_LOG_DIR = join(LOG_DIR, "gencode")
-GENCODE_GENE_ANNOT_LOG = join(GENCODE_LOG_DIR, f"{GENCODE_GENOME_NAME}_gene_annot.log")
-
-GENCODE_GENE_ANNOT_WRAPPER = join(
-    config["wrapper"]["base_url"], "bio/reference/gtf/gene_annot"
-)
-
-RSEQC_RESOURCES_DIR = join(RESOURCES_DIR, "rseqc")
-RSEQC_LOG_DIR = join(LOG_DIR, "rseqc")
-
-RSEQC_GENOME_ANNOT_FILE = join(RSEQC_RESOURCES_DIR, f"{GENCODE_GENOME_NAME}.bed")
-RSEQC_GENOME_ANNOT_DB = join(RSEQC_RESOURCES_DIR, f"{GENCODE_GENOME_NAME}.db")
-
-RSEQC_ANNOT_LOG = join(RSEQC_LOG_DIR, "gtf2bed.log")
-
-RSEQC_ANNOT_WRAPPER = join(config["wrapper"]["base_url"], "bio/gffutils/gtf2bed")
-
 FASTQ_DATA_DIR = config["fastq"]["data_dir"]
 FASTQ_PAIRS = config["fastq"]["pairs"]
 FASTQ_EXT = config["fastq"]["ext"]
 FASTQ_PLATFORM = config["fastq"]["platform"]
+
+GENCODE_GENOME_NAME = f"gencode_{GENCODE_RELEASE}_{GENCODE_BUILD}"
+GENCODE_GENOME_SEQ_FILE = join(GENCODE_RESOURCES_DIR, f"{GENCODE_GENOME_NAME}.fa")
+GENCODE_GENOME_ANNOT_FILE = join(
+    GENCODE_RESOURCES_DIR, f"{GENCODE_GENOME_NAME}.{GENCODE_ANNOT_FMT.lower()}"
+)
+GENCODE_GENE_ANNOT_FILE = join(
+    GENCODE_RESOURCES_DIR, f"{GENCODE_GENOME_NAME}_gene_annot.tsv"
+)
+
+RSEQC_GENOME_ANNOT_FILE = join(RSEQC_RESOURCES_DIR, f"{GENCODE_GENOME_NAME}.bed")
+RSEQC_GENOME_ANNOT_DB = join(RSEQC_RESOURCES_DIR, f"{GENCODE_GENOME_NAME}.db")
 
 TRIMMED_RESULTS_DIR = join(RESULTS_DIR, "fastp", "{sub_dir}")
 
@@ -121,10 +101,10 @@ TRIMMED_FASTQ2_FILE = join(
 )
 
 TRIMMED_UNPAIR1_FILE = join(
-    TRIMMED_RESULTS_DIR, f"{RUN_ID_WILDCARD_STR}_U1.{FASTQ_EXT}"
+    TRIMMED_RESULTS_DIR, f"{RUN_ID_WILDCARD_STR}_unpaired1.{FASTQ_EXT}"
 )
 TRIMMED_UNPAIR2_FILE = join(
-    TRIMMED_RESULTS_DIR, f"{RUN_ID_WILDCARD_STR}_U2.{FASTQ_EXT}"
+    TRIMMED_RESULTS_DIR, f"{RUN_ID_WILDCARD_STR}_unpaired2.{FASTQ_EXT}"
 )
 FAILED_READS_FILE = join(
     TRIMMED_RESULTS_DIR, f"{RUN_ID_WILDCARD_STR}.failed.{FASTQ_EXT}"
@@ -132,37 +112,19 @@ FAILED_READS_FILE = join(
 FASTP_HTML_REPORT_FILE = join(TRIMMED_RESULTS_DIR, f"{RUN_ID_WILDCARD_STR}_report.html")
 FASTP_JSON_REPORT_FILE = join(TRIMMED_RESULTS_DIR, f"{RUN_ID_WILDCARD_STR}_report.json")
 
-FASTP_LOG_DIR = join(LOG_DIR, "fastp", "{sub_dir}")
-FASTP_LOG = join(FASTP_LOG_DIR, f"{RUN_ID_WILDCARD_STR}.log")
-FASTP_WRAPPER = join(config["wrapper"]["base_url"], "bio/fastp")
-
 READ_LENGTH_RESULTS_DIR = join(RESULTS_DIR, "read_length", "{sub_dir}")
-READ_LENGTH_LOG_DIR = join(LOG_DIR, "read_length", "{sub_dir}")
-
 READ_LENGTH_HISTOGRAM_FILE = join(
     READ_LENGTH_RESULTS_DIR, f"{RUN_ID_WILDCARD_STR}_histogram.tsv"
 )
 READ_LENGTH_FILE = join(READ_LENGTH_RESULTS_DIR, f"{RUN_ID_WILDCARD_STR}_length.txt")
 
-READ_LENGTH_HISTOGRAM_LOG = join(
-    READ_LENGTH_LOG_DIR, f"{RUN_ID_WILDCARD_STR}_histogram.log"
-)
-READ_LENGTH_LOG = join(READ_LENGTH_LOG_DIR, f"{RUN_ID_WILDCARD_STR}_length.log")
-
-READ_LENGTH_WRAPPER = join(config["wrapper"]["base_url"], "bio/bbmap/readlength")
-
-STAR_RESOURCES_DIR = join(RESOURCES_DIR, "star")
-STAR_RESULTS_DIR = join(RESULTS_DIR, "star", "{sub_dir}")
-STAR_LOG_DIR = join(LOG_DIR, "star", "{sub_dir}")
 STAR_GENOME_DIR = join(STAR_RESOURCES_DIR, GENCODE_GENOME_NAME)
+STAR_RESULTS_DIR = join(RESULTS_DIR, "star", "{sub_dir}")
 STAR_OUTPUT_DIR = join(STAR_RESULTS_DIR, RUN_ID_WILDCARD_STR)
 STAR_PASS1_OUTPUT_DIR = join(STAR_OUTPUT_DIR, "_STARpass1")
 STAR_PASS2_OUTPUT_DIR = join(STAR_OUTPUT_DIR, "_STARpass2")
-STAR_OUTPUT_LOG_DIR = join(STAR_LOG_DIR, RUN_ID_WILDCARD_STR)
-
 STAR_PASS1_SJ_FILE = join(STAR_PASS1_OUTPUT_DIR, "SJ.out.tab")
 STAR_PASS1_SJ_FILTERED_FILE = join(STAR_PASS1_OUTPUT_DIR, "SJ.filtered.out.tab")
-
 STAR_BAM_FILE = join(
     STAR_PASS2_OUTPUT_DIR,
     "Aligned.sortedByCoord.out.bam"
@@ -170,18 +132,44 @@ STAR_BAM_FILE = join(
     else "Aligned.out.bam",
 )
 STAR_READ_COUNT_FILE = join(STAR_PASS2_OUTPUT_DIR, "ReadsPerGene.out.tab")
-
-SAM_ATTR_RG_LINE = (
+STAR_SAM_ATTR_RG_LINE = (
     f"ID:{RUN_ID_WILDCARD_STR} PL:{FASTQ_PLATFORM} " f"SM:{RUN_ID_WILDCARD_STR} LB:RNA"
 )
 STAR_BAM_SORT = (
     "SortedByCoordinate" if config["star"]["align"]["sort_bam"] else "Unsorted"
 )
 
+RSEQC_RESULTS_DIR = join(RESULTS_DIR, "rseqc", "{sub_dir}")
+RSEQC_INFER_EXPERIMENT_FILE = join(
+    RSEQC_RESULTS_DIR, f"{RUN_ID_WILDCARD_STR}_infer_experiment.txt"
+)
+RSEQC_STRAND_INFO_FILE = join(
+    RSEQC_RESULTS_DIR, f"{RUN_ID_WILDCARD_STR}_strand_info.txt"
+)
+
+COUNTS_RESULTS_DIR = join(RESULTS_DIR, "counts", STUDY_NAME)
+COUNT_MATRIX_FILE = join(COUNTS_RESULTS_DIR, f"{STUDY_NAME}_count_matrix.tsv")
+COUNT_ESET_FILE = join(COUNTS_RESULTS_DIR, f"{STUDY_NAME}_count_eset.rds")
+
+DIFFEXP_RESULTS_DIR = join(RESULTS_DIR, "diffexp", STUDY_NAME)
+
+GENCODE_LOG_DIR = join(LOG_DIR, "gencode")
+GENCODE_GENE_ANNOT_LOG = join(GENCODE_LOG_DIR, f"{GENCODE_GENOME_NAME}_gene_annot.log")
+
+FASTP_LOG_DIR = join(LOG_DIR, "fastp", "{sub_dir}")
+FASTP_LOG = join(FASTP_LOG_DIR, f"{RUN_ID_WILDCARD_STR}.log")
+
+READ_LENGTH_LOG_DIR = join(LOG_DIR, "read_length", "{sub_dir}")
+READ_LENGTH_HISTOGRAM_LOG = join(
+    READ_LENGTH_LOG_DIR, f"{RUN_ID_WILDCARD_STR}_histogram.log"
+)
+READ_LENGTH_LOG = join(READ_LENGTH_LOG_DIR, f"{RUN_ID_WILDCARD_STR}_length.log")
+
 STAR_LOG_DIR = join(LOG_DIR, "star")
 STAR_GENOME_LOG = join(
     STAR_LOG_DIR, GENCODE_GENOME_NAME, f"{GENCODE_GENOME_NAME}_star_index.log"
 )
+STAR_OUTPUT_LOG_DIR = join(STAR_LOG_DIR, "{sub_dir}")
 STAR_PASS1_SJ_FILTERED_LOG = join(
     STAR_OUTPUT_LOG_DIR, f"{RUN_ID_WILDCARD_STR}_star_filter_pass1_sj.log"
 )
@@ -192,39 +180,36 @@ STAR_ALIGN_PASS2_LOG = join(
     STAR_OUTPUT_LOG_DIR, f"{RUN_ID_WILDCARD_STR}_star_pass2.log"
 )
 
+RSEQC_LOG_DIR = join(LOG_DIR, "rseqc")
+RSEQC_ANNOT_LOG = join(RSEQC_LOG_DIR, "gtf2bed.log")
+RSEQC_OUTPUT_LOG_DIR = join(RSEQC_LOG_DIR, "{sub_dir}")
+RSEQC_INFER_EXPERIMENT_LOG = join(
+    RSEQC_OUTPUT_LOG_DIR, f"{RUN_ID_WILDCARD_STR}_infer_experiment.log"
+)
+
+COUNTS_LOG_DIR = join(LOG_DIR, "counts", STUDY_NAME)
+COUNT_MATRIX_LOG = join(COUNTS_LOG_DIR, f"{STUDY_NAME}_count_matrix.log")
+COUNT_ESET_LOG = join(COUNTS_LOG_DIR, f"{STUDY_NAME}_count_eset.log")
+
+DIFFEXP_LOG_DIR = join(LOG_DIR, "diffexp", STUDY_NAME)
+
+GENCODE_GENOME_SEQ_WRAPPER = join(
+    config["wrapper"]["base_url"], "bio/reference/gencode/sequence"
+)
+GENCODE_GENOME_ANNOT_WRAPPER = join(
+    config["wrapper"]["base_url"], "bio/reference/gencode/annotation"
+)
+GENCODE_GENE_ANNOT_WRAPPER = join(
+    config["wrapper"]["base_url"], "bio/reference/gtf/gene_annot"
+)
+FASTP_WRAPPER = join(config["wrapper"]["base_url"], "bio/fastp")
+READ_LENGTH_WRAPPER = join(config["wrapper"]["base_url"], "bio/bbmap/readlength")
 STAR_GENOME_WRAPPER = join(config["wrapper"]["base_url"], "bio/star/index")
 STAR_ALIGN_WRAPPER = join(config["wrapper"]["base_url"], "bio/star/align")
-
-RSEQC_RESULTS_DIR = join(RESULTS_DIR, "rseqc", "{sub_dir}")
-RSEQC_LOG_DIR = join(LOG_DIR, "rseqc", "{sub_dir}")
-
-RSEQC_INFER_EXPERIMENT_FILE = join(
-    RSEQC_RESULTS_DIR, f"{RUN_ID_WILDCARD_STR}_infer_experiment.txt"
-)
-RSEQC_INFER_EXPERIMENT_LOG = join(
-    RSEQC_LOG_DIR, f"{RUN_ID_WILDCARD_STR}_infer_experiment.log"
-)
-
+RSEQC_ANNOT_WRAPPER = join(config["wrapper"]["base_url"], "bio/gffutils/gtf2bed")
 RSEQC_INFER_EXPERIMENT_WRAPPER = join(
     config["wrapper"]["base_url"], "bio/rseqc/infer_experiment"
 )
-
-RSEQC_STRAND_INFO_FILE = join(
-    RSEQC_RESULTS_DIR, f"{RUN_ID_WILDCARD_STR}_strand_info.txt"
-)
-
-COUNTS_RESULTS_DIR = join(RESULTS_DIR, "counts", STUDY_NAME)
-COUNTS_LOG_DIR = join(LOG_DIR, "counts", STUDY_NAME)
-
-QC_RESULTS_DIR = join(RESULTS_DIR, "qc", STUDY_NAME)
-QC_LOG_DIR = join(LOG_DIR, "qc", STUDY_NAME)
-
-COUNT_MATRIX_FILE = join(COUNTS_RESULTS_DIR, f"{STUDY_NAME}_count_matrix.tsv")
-COUNT_MATRIX_LOG = join(COUNTS_LOG_DIR, f"{STUDY_NAME}_count_matrix.log")
-
-COUNT_ESET_FILE = join(COUNTS_RESULTS_DIR, f"{STUDY_NAME}_count_eset.rds")
-COUNT_ESET_LOG = join(COUNTS_LOG_DIR, f"{STUDY_NAME}_count_eset.log")
-
 COUNT_MATRIX_WRAPPER = join(config["wrapper"]["base_url"], "bio/star/count_matrix")
 COUNT_ESET_WRAPPER = join(config["wrapper"]["base_url"], "bio/biobase/eset")
 

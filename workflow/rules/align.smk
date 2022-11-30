@@ -113,7 +113,7 @@ rule star_align_pass2:
             " --outFilterMismatchNoverLmax 0.1"
             " --outFilterMultimapNmax 20"
             " --outFilterType BySJout"
-            f" --outSAMattrRGline {SAM_ATTR_RG_LINE}"
+            f" --outSAMattrRGline {STAR_SAM_ATTR_RG_LINE}"
             f" --outSAMtype BAM {STAR_BAM_SORT}"
             " --outSAMstrandField intronMotif"
             " --outSAMattributes All"
