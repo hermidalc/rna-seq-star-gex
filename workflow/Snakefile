@@ -154,22 +154,27 @@ COUNT_ESET_FILE = join(COUNTS_RESULTS_DIR, f"{STUDY_NAME}_count_eset.rds")
 DIFFEXP_RESULTS_DIR = join(RESULTS_DIR, "diffexp", STUDY_NAME)
 
 GENCODE_LOG_DIR = join(LOG_DIR, "gencode")
+FASTP_LOG_DIR = join(LOG_DIR, "fastp", "{sub_dir}")
+READ_LENGTH_LOG_DIR = join(LOG_DIR, "read_length", "{sub_dir}")
+STAR_LOG_DIR = join(LOG_DIR, "star")
+STAR_OUTPUT_LOG_DIR = join(STAR_LOG_DIR, "{sub_dir}")
+RSEQC_LOG_DIR = join(LOG_DIR, "rseqc")
+RSEQC_OUTPUT_LOG_DIR = join(RSEQC_LOG_DIR, "{sub_dir}")
+COUNTS_LOG_DIR = join(LOG_DIR, "counts", STUDY_NAME)
+DIFFEXP_LOG_DIR = join(LOG_DIR, "diffexp", STUDY_NAME)
+
 GENCODE_GENE_ANNOT_LOG = join(GENCODE_LOG_DIR, f"{GENCODE_GENOME_NAME}_gene_annot.log")
 
-FASTP_LOG_DIR = join(LOG_DIR, "fastp", "{sub_dir}")
 FASTP_LOG = join(FASTP_LOG_DIR, f"{RUN_ID_WILDCARD_STR}.log")
 
-READ_LENGTH_LOG_DIR = join(LOG_DIR, "read_length", "{sub_dir}")
 READ_LENGTH_HISTOGRAM_LOG = join(
     READ_LENGTH_LOG_DIR, f"{RUN_ID_WILDCARD_STR}_histogram.log"
 )
 READ_LENGTH_LOG = join(READ_LENGTH_LOG_DIR, f"{RUN_ID_WILDCARD_STR}_length.log")
 
-STAR_LOG_DIR = join(LOG_DIR, "star")
 STAR_GENOME_LOG = join(
     STAR_LOG_DIR, GENCODE_GENOME_NAME, f"{GENCODE_GENOME_NAME}_star_index.log"
 )
-STAR_OUTPUT_LOG_DIR = join(STAR_LOG_DIR, "{sub_dir}")
 STAR_PASS1_SJ_FILTERED_LOG = join(
     STAR_OUTPUT_LOG_DIR, f"{RUN_ID_WILDCARD_STR}_star_filter_pass1_sj.log"
 )
@@ -180,18 +185,13 @@ STAR_ALIGN_PASS2_LOG = join(
     STAR_OUTPUT_LOG_DIR, f"{RUN_ID_WILDCARD_STR}_star_pass2.log"
 )
 
-RSEQC_LOG_DIR = join(LOG_DIR, "rseqc")
 RSEQC_ANNOT_LOG = join(RSEQC_LOG_DIR, "gtf2bed.log")
-RSEQC_OUTPUT_LOG_DIR = join(RSEQC_LOG_DIR, "{sub_dir}")
 RSEQC_INFER_EXPERIMENT_LOG = join(
     RSEQC_OUTPUT_LOG_DIR, f"{RUN_ID_WILDCARD_STR}_infer_experiment.log"
 )
 
-COUNTS_LOG_DIR = join(LOG_DIR, "counts", STUDY_NAME)
 COUNT_MATRIX_LOG = join(COUNTS_LOG_DIR, f"{STUDY_NAME}_count_matrix.log")
 COUNT_ESET_LOG = join(COUNTS_LOG_DIR, f"{STUDY_NAME}_count_eset.log")
-
-DIFFEXP_LOG_DIR = join(LOG_DIR, "diffexp", STUDY_NAME)
 
 GENCODE_GENOME_SEQ_WRAPPER = join(
     config["wrapper"]["base_url"], "bio/reference/gencode/sequence"
