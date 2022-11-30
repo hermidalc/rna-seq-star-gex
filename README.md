@@ -1,3 +1,3 @@
 # rna-seq-star-gex
 
-RNA-seq STAR gene expression analysis Snakemake workflow
+STAR + edgeR/DESeq2/limma-voom RNA-seq gene expression analysis workflow
