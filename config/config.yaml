@@ -47,3 +47,15 @@ star:
 rseqc:
   infer_exp:
     sample_size: 1e6
+
+diffexp:
+  methods: ["edger"]
+  experiments: ["mitoFAP"]
+  contrast: ["light", "light_dye"]
+  has_batches: false
+  qc_types: ["rle", "pca", "mds"]
+  qc_legend: "topright"
+  rle_ylim: [-2, 2]
+  fc: 1.1
+  padj: 0.05
+  padj_meth: BH

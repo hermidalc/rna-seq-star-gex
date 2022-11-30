@@ -1,0 +1,47 @@
+name: diffexp
+channels:
+  - conda-forge
+  - bioconda
+  - nodefaults
+dependencies:
+  - bioconductor-apeglm
+  - bioconductor-biobase
+  - bioconductor-clusterprofiler
+  - bioconductor-complexheatmap
+  - bioconductor-deseq2
+  - bioconductor-dose
+  - bioconductor-edger
+  - bioconductor-enrichplot
+  - bioconductor-fgsea
+  - bioconductor-gosemsim
+  - bioconductor-qvalue
+  - bioconductor-limma
+  - bioconductor-go.db
+  - bioconductor-reactome.db
+  - bioconductor-reactomepa
+  - r-cowplot
+  - r-dendextend
+  - r-downloader
+  - r-factoextra
+  - r-forcats
+  - r-ggeasy
+  - r-ggh4x
+  - r-ggnewscale
+  - r-ggridges
+  - r-ggstance
+  - r-ggupset
+  - r-hrbrthemes
+  - r-igraph
+  - r-magick
+  - r-magrittr
+  - r-msigdbr=7.5.1
+  - r-nbclust
+  - r-pdftools
+  - r-plyr
+  - r-purrr
+  - r-statmod
+  - r-stringr
+  - r-tidyr
+  - r-viridis
+  - r-vroom
+  - r-yulab.utils

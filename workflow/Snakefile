@@ -73,6 +73,10 @@ FASTQ_PAIRS = config["fastq"]["pairs"]
 FASTQ_EXT = config["fastq"]["ext"]
 FASTQ_PLATFORM = config["fastq"]["platform"]
 
+DIFFEXP_METHODS = config["diffexp"]["methods"]
+DIFFEXP_EXPERIMENTS = config["diffexp"]["experiments"]
+DIFFEXP_QC_TYPES = config["diffexp"]["qc_types"]
+
 GENCODE_GENOME_NAME = f"gencode_{GENCODE_RELEASE}_{GENCODE_BUILD}"
 GENCODE_GENOME_SEQ_FILE = join(GENCODE_RESOURCES_DIR, f"{GENCODE_GENOME_NAME}.fa")
 GENCODE_GENOME_ANNOT_FILE = join(
@@ -151,7 +155,16 @@ COUNTS_RESULTS_DIR = join(RESULTS_DIR, "counts", STUDY_NAME)
 COUNT_MATRIX_FILE = join(COUNTS_RESULTS_DIR, f"{STUDY_NAME}_count_matrix.tsv")
 COUNT_ESET_FILE = join(COUNTS_RESULTS_DIR, f"{STUDY_NAME}_count_eset.rds")
 
+EXPAND_PARAMS["de_qc_meth"] = ["counts"] + DIFFEXP_METHODS
+EXPAND_PARAMS["de_qc_type"] = DIFFEXP_QC_TYPES
+
+EXPAND_PARAMS["de_meth"] = DIFFEXP_METHODS
+EXPAND_PARAMS["de_exp"] = [e.lower() for e in DIFFEXP_EXPERIMENTS]
+
 DIFFEXP_RESULTS_DIR = join(RESULTS_DIR, "diffexp", STUDY_NAME)
+DIFFEXP_QC_PLOT_FILE = join(
+    DIFFEXP_RESULTS_DIR, f"{STUDY_NAME}_{{de_exp}}_{{de_qc_meth}}_{{de_qc_type}}.png"
+)
 
 GENCODE_LOG_DIR = join(LOG_DIR, "gencode")
 FASTP_LOG_DIR = join(LOG_DIR, "fastp", "{sub_dir}")
@@ -193,6 +206,10 @@ RSEQC_INFER_EXPERIMENT_LOG = join(
 COUNT_MATRIX_LOG = join(COUNTS_LOG_DIR, f"{STUDY_NAME}_count_matrix.log")
 COUNT_ESET_LOG = join(COUNTS_LOG_DIR, f"{STUDY_NAME}_count_eset.log")
 
+DIFFEXP_QC_LOG_FILE = join(
+    DIFFEXP_LOG_DIR, f"{STUDY_NAME}_{{de_exp}}_{{de_qc_meth}}_{{de_qc_type}}.png"
+)
+
 GENCODE_GENOME_SEQ_WRAPPER = join(
     config["wrapper"]["base_url"], "bio/reference/gencode/sequence"
 )
@@ -233,6 +250,7 @@ include: join(RULES_DIR, "read_length.smk")
 include: join(RULES_DIR, "align.smk")
 include: join(RULES_DIR, "strand_info.smk")
 include: join(RULES_DIR, "counts.smk")
+include: join(RULES_DIR, "diffexp.smk")
 
 
 wildcard_constraints:
@@ -258,6 +276,7 @@ rule all:
         expand(RSEQC_STRAND_INFO_FILE, zip, **EXPAND_PARAMS),
         COUNT_MATRIX_FILE,
         COUNT_ESET_FILE,
+        expand(DIFFEXP_QC_PLOT_FILE, **EXPAND_PARAMS),
 
 
 def clean(*dirs):

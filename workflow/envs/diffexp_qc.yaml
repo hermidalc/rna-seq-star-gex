@@ -1,0 +1,14 @@
+name: diffexp_qc
+channels:
+  - conda-forge
+  - bioconda
+  - nodefaults
+dependencies:
+  - bioconductor-biobase
+  - bioconductor-deseq2
+  - bioconductor-edaseq
+  - bioconductor-edger
+  - bioconductor-limma
+  - r-rcolorbrewer
+  - r-statmod
+  - r-stringr
