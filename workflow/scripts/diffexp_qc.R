@@ -27,7 +27,7 @@ qc_legend <- snakemake@params[["qc_legend"]]
 ylim <- snakemake@params[["ylim"]]
 
 eset <- readRDS(snakemake@input[[1]])
-eset <- eset[, eset$experiment %in% experiment]
+eset <- eset[, eset$experiment == experiment]
 
 counts <- exprs(eset)
 pdata <- pData(eset)
@@ -107,7 +107,7 @@ if (snakemake@params[["type"]] == "rle") {
 title(paste(experiment, title, str_to_upper(snakemake@params[["type"]])))
 legend(
     qc_legend,
-    legend = labels[as.integer(unique(pdata$condition))],
+    legend = contrast[as.integer(unique(pdata$condition))],
     col = colors, pch = 15, cex = 0.8
 )
 invisible(dev.off())

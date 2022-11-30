@@ -122,20 +122,20 @@ READ_LENGTH_HISTOGRAM_FILE = join(
 )
 READ_LENGTH_FILE = join(READ_LENGTH_RESULTS_DIR, f"{RUN_ID_WILDCARD_STR}_length.txt")
 
-STAR_GENOME_DIR = join(STAR_RESOURCES_DIR, GENCODE_GENOME_NAME)
-STAR_RESULTS_DIR = join(RESULTS_DIR, "star", "{sub_dir}")
-STAR_OUTPUT_DIR = join(STAR_RESULTS_DIR, RUN_ID_WILDCARD_STR)
-STAR_PASS1_OUTPUT_DIR = join(STAR_OUTPUT_DIR, "_STARpass1")
-STAR_PASS2_OUTPUT_DIR = join(STAR_OUTPUT_DIR, "_STARpass2")
-STAR_PASS1_SJ_FILE = join(STAR_PASS1_OUTPUT_DIR, "SJ.out.tab")
-STAR_PASS1_SJ_FILTERED_FILE = join(STAR_PASS1_OUTPUT_DIR, "SJ.filtered.out.tab")
+STAR_INDEX_DIR = join(STAR_RESOURCES_DIR, GENCODE_GENOME_NAME)
+STAR_RESULTS_DIR = join(RESULTS_DIR, "star")
+STAR_ALIGN_DIR = join(STAR_RESULTS_DIR, "{sub_dir}", RUN_ID_WILDCARD_STR)
+STAR_ALIGN_PASS1_DIR = join(STAR_ALIGN_DIR, "_STARpass1")
+STAR_ALIGN_PASS2_DIR = join(STAR_ALIGN_DIR, "_STARpass2")
+STAR_ALIGN_PASS1_SJ_FILE = join(STAR_ALIGN_PASS1_DIR, "SJ.out.tab")
+STAR_ALIGN_PASS1_SJ_FILTERED_FILE = join(STAR_ALIGN_PASS1_DIR, "SJ.filtered.out.tab")
 STAR_BAM_FILE = join(
-    STAR_PASS2_OUTPUT_DIR,
+    STAR_ALIGN_PASS2_DIR,
     "Aligned.sortedByCoord.out.bam"
     if config["star"]["align"]["sort_bam"]
     else "Aligned.out.bam",
 )
-STAR_READ_COUNT_FILE = join(STAR_PASS2_OUTPUT_DIR, "ReadsPerGene.out.tab")
+STAR_READ_COUNT_FILE = join(STAR_ALIGN_PASS2_DIR, "ReadsPerGene.out.tab")
 STAR_SAM_ATTR_RG_LINE = (
     f"ID:{RUN_ID_WILDCARD_STR} PL:{FASTQ_PLATFORM} " f"SM:{RUN_ID_WILDCARD_STR} LB:RNA"
 )
@@ -165,12 +165,19 @@ DIFFEXP_RESULTS_DIR = join(RESULTS_DIR, "diffexp", STUDY_NAME)
 DIFFEXP_QC_PLOT_FILE = join(
     DIFFEXP_RESULTS_DIR, f"{STUDY_NAME}_{{de_exp}}_{{de_qc_meth}}_{{de_qc_type}}.png"
 )
+DIFFEXP_RESULTS_TABLE_FILE = join(
+    DIFFEXP_RESULTS_DIR, f"{STUDY_NAME}_{{de_exp}}_{{de_meth}}_dge_results.tsv"
+)
+DIFFEXP_VOLCANO_PLOT_FILE = join(
+    DIFFEXP_RESULTS_DIR, f"{STUDY_NAME}_{{de_exp}}_{{de_meth}}_dge_volcano.png"
+)
 
 GENCODE_LOG_DIR = join(LOG_DIR, "gencode")
 FASTP_LOG_DIR = join(LOG_DIR, "fastp", "{sub_dir}")
 READ_LENGTH_LOG_DIR = join(LOG_DIR, "read_length", "{sub_dir}")
 STAR_LOG_DIR = join(LOG_DIR, "star")
-STAR_OUTPUT_LOG_DIR = join(STAR_LOG_DIR, "{sub_dir}")
+STAR_INDEX_LOG_DIR = join(STAR_LOG_DIR, "index")
+STAR_ALIGN_LOG_DIR = join(STAR_LOG_DIR, "align", "{sub_dir}")
 RSEQC_LOG_DIR = join(LOG_DIR, "rseqc")
 RSEQC_OUTPUT_LOG_DIR = join(RSEQC_LOG_DIR, "{sub_dir}")
 COUNTS_LOG_DIR = join(LOG_DIR, "counts", STUDY_NAME)
@@ -185,18 +192,12 @@ READ_LENGTH_HISTOGRAM_LOG = join(
 )
 READ_LENGTH_LOG = join(READ_LENGTH_LOG_DIR, f"{RUN_ID_WILDCARD_STR}_length.log")
 
-STAR_GENOME_LOG = join(
-    STAR_LOG_DIR, GENCODE_GENOME_NAME, f"{GENCODE_GENOME_NAME}_star_index.log"
+STAR_INDEX_LOG = join(STAR_INDEX_LOG_DIR, f"{GENCODE_GENOME_NAME}_star_index.log")
+STAR_ALIGN_PASS1_SJ_FILTERED_LOG = join(
+    STAR_ALIGN_LOG_DIR, f"{RUN_ID_WILDCARD_STR}_star_filter_pass1_sj.log"
 )
-STAR_PASS1_SJ_FILTERED_LOG = join(
-    STAR_OUTPUT_LOG_DIR, f"{RUN_ID_WILDCARD_STR}_star_filter_pass1_sj.log"
-)
-STAR_ALIGN_PASS1_LOG = join(
-    STAR_OUTPUT_LOG_DIR, f"{RUN_ID_WILDCARD_STR}_star_pass1.log"
-)
-STAR_ALIGN_PASS2_LOG = join(
-    STAR_OUTPUT_LOG_DIR, f"{RUN_ID_WILDCARD_STR}_star_pass2.log"
-)
+STAR_ALIGN_PASS1_LOG = join(STAR_ALIGN_LOG_DIR, f"{RUN_ID_WILDCARD_STR}_star_pass1.log")
+STAR_ALIGN_PASS2_LOG = join(STAR_ALIGN_LOG_DIR, f"{RUN_ID_WILDCARD_STR}_star_pass2.log")
 
 RSEQC_ANNOT_LOG = join(RSEQC_LOG_DIR, "gtf2bed.log")
 RSEQC_INFER_EXPERIMENT_LOG = join(
@@ -207,8 +208,9 @@ COUNT_MATRIX_LOG = join(COUNTS_LOG_DIR, f"{STUDY_NAME}_count_matrix.log")
 COUNT_ESET_LOG = join(COUNTS_LOG_DIR, f"{STUDY_NAME}_count_eset.log")
 
 DIFFEXP_QC_LOG_FILE = join(
-    DIFFEXP_LOG_DIR, f"{STUDY_NAME}_{{de_exp}}_{{de_qc_meth}}_{{de_qc_type}}.png"
+    DIFFEXP_LOG_DIR, f"{STUDY_NAME}_{{de_exp}}_{{de_qc_meth}}_{{de_qc_type}}_qc.log"
 )
+DIFFEXP_LOG_FILE = join(DIFFEXP_LOG_DIR, f"{STUDY_NAME}_{{de_exp}}_{{de_meth}}_dge.log")
 
 GENCODE_GENOME_SEQ_WRAPPER = join(
     config["wrapper"]["base_url"], "bio/reference/gencode/sequence"
@@ -221,7 +223,7 @@ GENCODE_GENE_ANNOT_WRAPPER = join(
 )
 FASTP_WRAPPER = join(config["wrapper"]["base_url"], "bio/fastp")
 READ_LENGTH_WRAPPER = join(config["wrapper"]["base_url"], "bio/bbmap/readlength")
-STAR_GENOME_WRAPPER = join(config["wrapper"]["base_url"], "bio/star/index")
+STAR_INDEX_WRAPPER = join(config["wrapper"]["base_url"], "bio/star/index")
 STAR_ALIGN_WRAPPER = join(config["wrapper"]["base_url"], "bio/star/align")
 RSEQC_ANNOT_WRAPPER = join(config["wrapper"]["base_url"], "bio/gffutils/gtf2bed")
 RSEQC_INFER_EXPERIMENT_WRAPPER = join(
@@ -263,13 +265,13 @@ rule all:
         GENCODE_GENOME_ANNOT_FILE,
         GENCODE_GENE_ANNOT_FILE,
         RSEQC_GENOME_ANNOT_FILE,
-        STAR_GENOME_DIR,
+        STAR_INDEX_DIR,
         expand(TRIMMED_FASTQ1_FILE, zip, **EXPAND_PARAMS),
         expand(TRIMMED_FASTQ2_FILE, zip, **EXPAND_PARAMS),
         expand(READ_LENGTH_HISTOGRAM_FILE, zip, **EXPAND_PARAMS),
         expand(READ_LENGTH_FILE, zip, **EXPAND_PARAMS),
-        expand(STAR_PASS1_SJ_FILE, zip, **EXPAND_PARAMS),
-        expand(STAR_PASS1_SJ_FILTERED_FILE, zip, **EXPAND_PARAMS),
+        expand(STAR_ALIGN_PASS1_SJ_FILE, zip, **EXPAND_PARAMS),
+        expand(STAR_ALIGN_PASS1_SJ_FILTERED_FILE, zip, **EXPAND_PARAMS),
         expand(STAR_BAM_FILE, zip, **EXPAND_PARAMS),
         expand(STAR_READ_COUNT_FILE, zip, **EXPAND_PARAMS),
         expand(RSEQC_INFER_EXPERIMENT_FILE, zip, **EXPAND_PARAMS),
@@ -277,6 +279,8 @@ rule all:
         COUNT_MATRIX_FILE,
         COUNT_ESET_FILE,
         expand(DIFFEXP_QC_PLOT_FILE, **EXPAND_PARAMS),
+        expand(DIFFEXP_RESULTS_TABLE_FILE, **EXPAND_PARAMS),
+        expand(DIFFEXP_VOLCANO_PLOT_FILE, **EXPAND_PARAMS),
 
 
 def clean(*dirs):

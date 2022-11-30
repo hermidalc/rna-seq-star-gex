@@ -1,25 +1,25 @@
-rule star_genome_index:
+rule star_index:
     input:
         fastas=GENCODE_GENOME_SEQ_FILE,
     output:
-        directory(STAR_GENOME_DIR),
+        directory(STAR_INDEX_DIR),
     resources:
         tmpdir=TEMP_DIR,
     threads: STAR_INDEX_THREADS
     log:
-        STAR_GENOME_LOG,
+        STAR_INDEX_LOG,
     wrapper:
-        STAR_GENOME_WRAPPER
+        STAR_INDEX_WRAPPER
 
 
 rule star_align_pass1:
     input:
         unpack(lambda w: get_fq(w, trimmed=True)),
         gtf=GENCODE_GENOME_ANNOT_FILE,
-        index=STAR_GENOME_DIR,
+        index=STAR_INDEX_DIR,
         read_length=READ_LENGTH_FILE,
     params:
-        out_dir=STAR_PASS1_OUTPUT_DIR,
+        out_dir=STAR_ALIGN_PASS1_DIR,
         extra=(
             " --alignIntronMax 1000000"
             " --alignIntronMin 20"
@@ -35,7 +35,7 @@ rule star_align_pass1:
             " --outSAMtype None"
         ),
     output:
-        STAR_PASS1_SJ_FILE,
+        STAR_ALIGN_PASS1_SJ_FILE,
     resources:
         tmpdir=TEMP_DIR,
     threads: STAR_ALIGN_THREADS
@@ -47,11 +47,11 @@ rule star_align_pass1:
 
 rule star_filter_pass1_sj:
     input:
-        STAR_PASS1_SJ_FILE,
+        STAR_ALIGN_PASS1_SJ_FILE,
     output:
-        STAR_PASS1_SJ_FILTERED_FILE,
+        STAR_ALIGN_PASS1_SJ_FILTERED_FILE,
     log:
-        STAR_PASS1_SJ_FILTERED_LOG,
+        STAR_ALIGN_PASS1_SJ_FILTERED_LOG,
     run:
         print(f"Filtering STAR {input[0]}", flush=True)
         num_novel_sj = 0
@@ -90,12 +90,12 @@ rule star_filter_pass1_sj:
 rule star_align_pass2:
     input:
         unpack(lambda w: get_fq(w, trimmed=True)),
-        index=STAR_GENOME_DIR,
+        index=STAR_INDEX_DIR,
         gtf=GENCODE_GENOME_ANNOT_FILE,
         read_length=READ_LENGTH_FILE,
-        sj=STAR_PASS1_SJ_FILTERED_FILE,
+        sj=STAR_ALIGN_PASS1_SJ_FILTERED_FILE,
     params:
-        out_dir=STAR_PASS2_OUTPUT_DIR,
+        out_dir=STAR_ALIGN_PASS2_DIR,
         extra=(
             " --alignIntronMax 1000000"
             " --alignIntronMin 20"
