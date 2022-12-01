@@ -98,8 +98,11 @@ if (snakemake@params[["type"]] == "rle") {
     )
 } else if (snakemake@params[["type"]] == "mds") {
     # plotMDS part of edgeR - pass dge directly knows what to do
+    if (snakemake@params[["method"]] == "edger") {
+        mat <- dge
+    }
     plotMDS(
-        ifelse(snakemake@params[["method"]] == "edger", dge, mat),
+        mat,
         col = colors[as.integer(pdata$condition)], cex = 0.6
     )
 }
