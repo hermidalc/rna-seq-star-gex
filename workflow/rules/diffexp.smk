@@ -10,6 +10,7 @@ rule diffexp_qc:
             EXPAND_PARAMS["de_exp"].index(wc.de_exp)
         ],
         contrast=config["diffexp"]["contrast"],
+        contrast_label=config["diffexp"]["contrast_label"],
         has_batches=config["diffexp"]["has_batches"],
         qc_legend=config["diffexp"]["qc_legend"],
         ylim=config["diffexp"]["rle_ylim"],
@@ -23,7 +24,7 @@ rule diffexp_qc:
 
 rule diffexp:
     conda:
-        "../envs/diffexp_qc.yaml"
+        "../envs/diffexp.yaml"
     input:
         COUNT_ESET_FILE,
     params:
@@ -32,6 +33,7 @@ rule diffexp:
             EXPAND_PARAMS["de_exp"].index(wc.de_exp)
         ],
         contrast=config["diffexp"]["contrast"],
+        contrast_label=config["diffexp"]["contrast_label"],
         has_batches=config["diffexp"]["has_batches"],
         fc=config["diffexp"]["fc"],
         padj=config["diffexp"]["padj"],

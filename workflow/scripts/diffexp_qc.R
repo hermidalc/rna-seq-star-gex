@@ -22,6 +22,7 @@ colors <- colors[1:2]
 
 experiment <- snakemake@params[["experiment"]]
 contrast <- snakemake@params[["contrast"]]
+contrast_label <- snakemake@params[["contrast_label"]]
 has_batches <- snakemake@params[["has_batches"]]
 qc_legend <- snakemake@params[["qc_legend"]]
 ylim <- snakemake@params[["ylim"]]
@@ -110,7 +111,7 @@ if (snakemake@params[["type"]] == "rle") {
 title(paste(experiment, title, str_to_upper(snakemake@params[["type"]])))
 legend(
     qc_legend,
-    legend = contrast[as.integer(unique(pdata$condition))],
+    legend = contrast_label[as.integer(unique(pdata$condition))],
     col = colors, pch = 15, cex = 0.8
 )
 invisible(dev.off())
