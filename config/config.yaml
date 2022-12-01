@@ -62,3 +62,7 @@ diffexp:
   fc: 1.1
   padj: 0.05
   padj_meth: BH
+
+heatmap:
+  fig_w: 7
+  fig_h: 8

@@ -1,10 +1,11 @@
 suppressPackageStartupMessages({
     library(Biobase)
-    library(DESeq2)
+    library(ComplexHeatmap)
+    library(circlize)
+    library(data.table)
     library(edgeR)
-    library(EnhancedVolcano)
-    library(limma)
-    library(stringr)
+    library(GetoptLong)
+    library(RColorBrewer)
 })
 
 # Sink the stderr and stdout to the snakemake log file
@@ -13,8 +14,9 @@ log <- file(snakemake@log[[1]], open = "wt")
 sink(log)
 sink(log, type = "message")
 
-fig_dim <- 8
 fig_res <- 300
+fig_w <- snakemake@params[["fig_w"]]
+fig_h <- snakemake@params[["fig_h"]]
 
 experiment <- snakemake@params[["experiment"]]
 contrast <- snakemake@params[["contrast"]]
@@ -24,8 +26,10 @@ has_batches <- snakemake@params[["has_batches"]]
 fc <- snakemake@params[["fc"]]
 padj <- snakemake@params[["padj"]]
 padj_meth <- snakemake@params[["padj_meth"]]
+seed <- snakemake@params[["seed"]]
 
 lfc <- log2(fc)
+set.seed(seed)
 
 eset <- readRDS(snakemake@input[[1]])
 eset <- eset[, eset$experiment == experiment]
@@ -59,12 +63,9 @@ if (snakemake@params[["method"]] == "edger") {
     results <- as.data.frame(
         topTags(glt, n = Inf, adjust.method = padj_meth, sort.by = "PValue")
     )
-    x <- "logFC"
-    y <- "PValue"
+    cpms <- cpm(dge, log = TRUE)
+    mat <- cpms
     f <- "FDR"
-    subtitle <- paste(
-        "edgeR: TMM + QLFit +", ifelse(lfc > 0, "TREAT", "QLFTest")
-    )
 } else if (snakemake@params[["method"]] == "deseq2") {
     dds <- DESeqDataSetFromMatrix(counts, pdata, formula)
     mcols(dds) <- DataFrame(mcols(dds), fdata)
@@ -98,12 +99,10 @@ if (snakemake@params[["method"]] == "edger") {
         results <- results[!is.na(results$pvalue), , drop = FALSE]
         results <- results[!is.na(results$padj), , drop = FALSE]
     }
-    x <- "log2FoldChange"
-    y <- "pvalue"
+    vst <- varianceStabilizingTransformation(dds, blind = FALSE)
+    vsd <- assay(vst)
+    mat <- vsd
     f <- "padj"
-    subtitle <- paste(
-        "DESeq2: MOR + nbWaldtest", ifelse(lfc > 0, "+ lfcThreshold", "")
-    )
 } else if (snakemake@params[["method"]] == "voom") {
     dge <- DGEList(counts = counts, genes = fdata)
     dge <- dge[filterByExpr(dge, design), , keep.lib.sizes = FALSE]
@@ -125,58 +124,121 @@ if (snakemake@params[["method"]] == "edger") {
             sort.by = "P"
         )
     }
-    x <- "logFC"
-    y <- "P.Value"
+    cpms <- cpm(dge, log = TRUE)
+    mat <- cpms
     f <- "FDR"
-    subtitle <- paste(
-        "limma-voom: TMM + lmFit +", ifelse(lfc > 0, "TREAT", "eBayes")
+}
+
+if (has_batches) {
+    mat <- removeBatchEffect(
+        mat,
+        batch = pdata$batch
+        # design = model.matrix(~condition, data = pdata)
     )
 }
 
-write.table(
-    data.frame("ID" = row.names(results), results),
-    file = snakemake@output[["results"]],
-    sep = "\t", quote = FALSE, row.names = FALSE
+mat <- as.data.frame(mat)
+if (snakemake@params[["method"]] == "deseq2") {
+    mat$Symbol <- mcols(dds)$Symbol
+} else {
+    mat$Symbol <- dge$genes$Symbol
+}
+DT <- setDT(mat)
+DT <- DT[DT[, .I[which.max(abs(rowSums(.SD)))], by = Symbol]$V1]
+mat <- as.matrix(DT, rownames = "Symbol")
+storage.mode(mat) <- "double"
+mat <- mat[
+    row.names(mat) %in% results$Symbol[results[[f]] < padj], ,
+    drop = FALSE
+]
+colnames(mat) <- ifelse(
+    is.na(pdata$sample_label), pdata$sample_name, pdata$sample_label
 )
 
-if ("Symbol" %in% colnames(results)) {
-    labels <- results$Symbol
-} else {
-    labels <- row.names(results)
+# z-score calc from limma::coolmap
+M <- rowMeans(mat, na.rm = TRUE)
+DF <- ncol(mat) - 1L
+IsNA <- is.na(mat)
+if (any(IsNA)) {
+    mode(IsNA) <- "integer"
+    DF <- DF - rowSums(IsNA)
+    DF[DF == 0L] <- 1L
 }
+z <- mat - M
+V <- rowSums(z^2L, na.rm = TRUE) / DF
+z <- z / sqrt(V + 0.01)
 
 title <- paste(contrast_label[1], "vs", contrast_label[2], experiment)
 
+condition_colors <- c("azure3", "peachpuff")
+names(condition_colors) <- contrast_label
+
+genes <- NULL
+
+ht_opt(
+    legend_title_gp = gpar(fontsize = 9),
+    legend_labels_gp = gpar(fontsize = 8),
+    heatmap_column_names_gp = gpar(fontsize = 6),
+    heatmap_column_title_gp = gpar(fontsize = 12),
+    heatmap_row_title_gp = gpar(fontsize = 12),
+    TITLE_PADDING = unit(c(4, 3), "mm")
+)
+
+ht <- Heatmap(
+    z,
+    name = "z-score",
+    column_title = paste(title, qq("clustering of @{nrow(z)} DE genes")),
+    column_names_rot = 45,
+    cluster_columns = FALSE,
+    clustering_distance_rows = "pearson",
+    # col = colorRamp2(
+    #     c(-3, 0, 3), c("skyblue4", "lightgoldenrodyellow", "red3")
+    # ),
+    col = colorRampPalette(rev(brewer.pal(
+        n = 7, name = "RdYlBu"
+    )))(100),
+    heatmap_legend_param = list(
+        at = c(-3, 0, 3),
+        grid_height = unit(2, "mm"),
+        legend_width = unit(20, "mm"),
+        direction = "horizontal"
+    ),
+    top_annotation = HeatmapAnnotation(
+        condition = factor(
+            pdata$condition,
+            levels = contrast, labels = contrast_label
+        ),
+        col = list(condition = condition_colors),
+        show_annotation_name = FALSE,
+        show_legend = TRUE,
+        annotation_legend_param = list(nrow = 1),
+        annotation_height = 1,
+        height = unit(0.1, "mm"),
+        annotation_name_gp = gpar(fontsize = 4)
+    ),
+    use_raster = FALSE,
+    show_row_names = FALSE,
+    show_column_names = TRUE,
+    show_heatmap_legend = TRUE,
+    # row_km = 2,
+    row_km_repeats = 1000
+)
+
+if (!is.null(genes)) {
+    ht <- ht + rowAnnotation(
+        link = anno_mark(
+            at = which(row.names(z) %in% genes),
+            labels = row.names(z)[row.names(z) %in% genes],
+            labels_gp = gpar(fontsize = 12), padding = unit(1, "mm")
+        )
+    )
+}
+
 png(
-    file = snakemake@output[["volcano"]],
-    width = fig_dim, height = fig_dim, units = "in", res = fig_res
+    file = snakemake@output[[1]],
+    width = fig_w, height = fig_h, units = "in", res = fig_res
 )
-EnhancedVolcano(
-    results,
-    lab = labels,
-    selectLab = NULL,
-    x = x,
-    y = y,
-    xlim = c(floor(min(results[[x]])), ceiling(max(results[[x]]))),
-    ylim = c(0, ceiling(max(-log10(results[[y]])))),
-    pCutoff = (
-        tail(results[[y]][results[[f]] < padj], n = 1)
-        + head(results[[y]][results[[f]] > padj], n = 1)
-    ) / 2,
-    FCcutoff = lfc,
-    pointSize = 3.0,
-    labSize = 3.5,
-    labFace = "bold",
-    drawConnectors = FALSE,
-    widthConnectors = 1,
-    colConnectors = "grey20",
-    maxoverlapsConnectors = 50,
-    arrowheads = FALSE,
-    boxedLabels = FALSE,
-    title = title,
-    subtitle = NULL,
-    caption = paste("FC threshold = ", fc, " FDR = ", padj, sep = "")
-)
+draw(ht, heatmap_legend_side = "bottom", merge_legends = TRUE)
 invisible(dev.off())
 
 # Proper syntax to close the connection for the log file but could be optional

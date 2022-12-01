@@ -1,0 +1,18 @@
+name: heatmap
+channels:
+  - conda-forge
+  - bioconda
+  - nodefaults
+dependencies:
+  - bioconductor-apeglm
+  - bioconductor-biobase
+  - bioconductor-complexheatmap
+  - bioconductor-deseq2
+  - bioconductor-edger
+  - bioconductor-limma
+  - r-circlize
+  - r-data.table
+  - r-dendextend
+  - r-getoptlong
+  - r-rcolorbrewer
+  - r-statmod

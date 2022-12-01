@@ -42,6 +42,33 @@ rule diffexp:
         results=DIFFEXP_RESULTS_TABLE_FILE,
         volcano=DIFFEXP_VOLCANO_PLOT_FILE,
     log:
-        DIFFEXP_LOG_FILE,
+        DIFFEXP_RESULTS_LOG_FILE,
     script:
         "../scripts/diffexp.R"
+
+
+rule heatmap:
+    conda:
+        "../envs/heatmap.yaml"
+    input:
+        COUNT_ESET_FILE,
+    params:
+        method="{de_meth}",
+        experiment=lambda wc: config["diffexp"]["experiments"][
+            EXPAND_PARAMS["de_exp"].index(wc.de_exp)
+        ],
+        contrast=config["diffexp"]["contrast"],
+        contrast_label=config["diffexp"]["contrast_label"],
+        has_batches=config["diffexp"]["has_batches"],
+        fc=config["diffexp"]["fc"],
+        padj=config["diffexp"]["padj"],
+        padj_meth=config["diffexp"]["padj_meth"],
+        fig_w=config["heatmap"]["fig_w"],
+        fig_h=config["heatmap"]["fig_h"],
+        seed=config["random_seed"],
+    output:
+        DIFFEXP_HEATMAP_PLOT_FILE,
+    log:
+        DIFFEXP_HEATMAP_LOG_FILE,
+    script:
+        "../scripts/heatmap.R"

@@ -166,10 +166,13 @@ DIFFEXP_QC_PLOT_FILE = join(
     DIFFEXP_RESULTS_DIR, f"{STUDY_NAME}_{{de_exp}}_{{de_qc_meth}}_{{de_qc_type}}.png"
 )
 DIFFEXP_RESULTS_TABLE_FILE = join(
-    DIFFEXP_RESULTS_DIR, f"{STUDY_NAME}_{{de_exp}}_{{de_meth}}_dge_results.tsv"
+    DIFFEXP_RESULTS_DIR, f"{STUDY_NAME}_{{de_exp}}_{{de_meth}}_results.tsv"
 )
 DIFFEXP_VOLCANO_PLOT_FILE = join(
-    DIFFEXP_RESULTS_DIR, f"{STUDY_NAME}_{{de_exp}}_{{de_meth}}_dge_volcano.png"
+    DIFFEXP_RESULTS_DIR, f"{STUDY_NAME}_{{de_exp}}_{{de_meth}}_volcano.png"
+)
+DIFFEXP_HEATMAP_PLOT_FILE = join(
+    DIFFEXP_RESULTS_DIR, f"{STUDY_NAME}_{{de_exp}}_{{de_meth}}_heatmap.png"
 )
 
 GENCODE_LOG_DIR = join(LOG_DIR, "gencode")
@@ -210,7 +213,12 @@ COUNT_ESET_LOG = join(COUNTS_LOG_DIR, f"{STUDY_NAME}_count_eset.log")
 DIFFEXP_QC_LOG_FILE = join(
     DIFFEXP_LOG_DIR, f"{STUDY_NAME}_{{de_exp}}_{{de_qc_meth}}_{{de_qc_type}}_qc.log"
 )
-DIFFEXP_LOG_FILE = join(DIFFEXP_LOG_DIR, f"{STUDY_NAME}_{{de_exp}}_{{de_meth}}_dge.log")
+DIFFEXP_RESULTS_LOG_FILE = join(
+    DIFFEXP_LOG_DIR, f"{STUDY_NAME}_{{de_exp}}_{{de_meth}}_results.log"
+)
+DIFFEXP_HEATMAP_LOG_FILE = join(
+    DIFFEXP_LOG_DIR, f"{STUDY_NAME}_{{de_exp}}_{{de_meth}}_heatmap.log"
+)
 
 GENCODE_GENOME_SEQ_WRAPPER = join(
     config["wrapper"]["base_url"], "bio/reference/gencode/sequence"
@@ -281,6 +289,7 @@ rule all:
         expand(DIFFEXP_QC_PLOT_FILE, **EXPAND_PARAMS),
         expand(DIFFEXP_RESULTS_TABLE_FILE, **EXPAND_PARAMS),
         expand(DIFFEXP_VOLCANO_PLOT_FILE, **EXPAND_PARAMS),
+        expand(DIFFEXP_HEATMAP_PLOT_FILE, **EXPAND_PARAMS),
 
 
 def clean(*dirs):
