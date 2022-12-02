@@ -2,9 +2,7 @@ suppressPackageStartupMessages({
     library(Biobase)
     library(DESeq2)
     library(edgeR)
-    library(EnhancedVolcano)
     library(limma)
-    library(stringr)
 })
 
 # Sink the stderr and stdout to the snakemake log file
@@ -17,9 +15,7 @@ fig_dim <- 8
 fig_res <- 300
 
 experiment <- snakemake@params[["experiment"]]
-contrast <- snakemake@params[["contrast"]]
-contrast_label <- snakemake@params[["contrast_label"]]
-has_batches <- snakemake@params[["has_batches"]]
+conditions <- snakemake@params[["conditions"]]
 
 fc <- snakemake@params[["fc"]]
 padj <- snakemake@params[["padj"]]
@@ -34,9 +30,9 @@ counts <- exprs(eset)
 pdata <- pData(eset)
 fdata <- fData(eset)
 
-pdata$condition <- factor(pdata$condition, levels = contrast)
+pdata$condition <- factor(pdata$condition, levels = conditions)
 
-if (has_batches) {
+if ("batch" %in% pdata) {
     pdata$batch <- factor(pdata$batch)
     formula <- ~ batch + condition
 } else {
@@ -58,12 +54,6 @@ if (snakemake@params[["method"]] == "edger") {
     }
     results <- as.data.frame(
         topTags(glt, n = Inf, adjust.method = padj_meth, sort.by = "PValue")
-    )
-    x <- "logFC"
-    y <- "PValue"
-    f <- "FDR"
-    subtitle <- paste(
-        "edgeR: TMM + QLFit +", ifelse(lfc > 0, "TREAT", "QLFTest")
     )
 } else if (snakemake@params[["method"]] == "deseq2") {
     dds <- DESeqDataSetFromMatrix(counts, pdata, formula)
@@ -98,12 +88,6 @@ if (snakemake@params[["method"]] == "edger") {
         results <- results[!is.na(results$pvalue), , drop = FALSE]
         results <- results[!is.na(results$padj), , drop = FALSE]
     }
-    x <- "log2FoldChange"
-    y <- "pvalue"
-    f <- "padj"
-    subtitle <- paste(
-        "DESeq2: MOR + nbWaldtest", ifelse(lfc > 0, "+ lfcThreshold", "")
-    )
 } else if (snakemake@params[["method"]] == "voom") {
     dge <- DGEList(counts = counts, genes = fdata)
     dge <- dge[filterByExpr(dge, design), , keep.lib.sizes = FALSE]
@@ -125,59 +109,13 @@ if (snakemake@params[["method"]] == "edger") {
             sort.by = "P"
         )
     }
-    x <- "logFC"
-    y <- "P.Value"
-    f <- "FDR"
-    subtitle <- paste(
-        "limma-voom: TMM + lmFit +", ifelse(lfc > 0, "TREAT", "eBayes")
-    )
 }
 
 write.table(
     data.frame("ID" = row.names(results), results),
-    file = snakemake@output[["results"]],
+    file = snakemake@output[[1]],
     sep = "\t", quote = FALSE, row.names = FALSE
 )
-
-if ("Symbol" %in% colnames(results)) {
-    labels <- results$Symbol
-} else {
-    labels <- row.names(results)
-}
-
-title <- paste(contrast_label[1], "vs", contrast_label[2], experiment)
-
-png(
-    file = snakemake@output[["volcano"]],
-    width = fig_dim, height = fig_dim, units = "in", res = fig_res
-)
-EnhancedVolcano(
-    results,
-    lab = labels,
-    selectLab = NULL,
-    x = x,
-    y = y,
-    xlim = c(floor(min(results[[x]])), ceiling(max(results[[x]]))),
-    ylim = c(0, ceiling(max(-log10(results[[y]])))),
-    pCutoff = (
-        tail(results[[y]][results[[f]] < padj], n = 1)
-        + head(results[[y]][results[[f]] > padj], n = 1)
-    ) / 2,
-    FCcutoff = lfc,
-    pointSize = 3.0,
-    labSize = 3.5,
-    labFace = "bold",
-    drawConnectors = FALSE,
-    widthConnectors = 1,
-    colConnectors = "grey20",
-    maxoverlapsConnectors = 50,
-    arrowheads = FALSE,
-    boxedLabels = FALSE,
-    title = title,
-    subtitle = NULL,
-    caption = paste("FC threshold = ", fc, " FDR = ", padj, sep = "")
-)
-invisible(dev.off())
 
 # Proper syntax to close the connection for the log file but could be optional
 # for Snakemake wrapper

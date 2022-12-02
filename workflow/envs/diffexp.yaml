@@ -8,7 +8,5 @@ dependencies:
   - bioconductor-biobase
   - bioconductor-deseq2
   - bioconductor-edger
-  - bioconductor-enhancedvolcano
   - bioconductor-limma
   - r-statmod
-  - r-stringr

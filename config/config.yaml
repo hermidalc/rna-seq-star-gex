@@ -9,10 +9,15 @@ random_seed: 777
 download:
   retries: 5
 
-study:
-  name: "light_vs_light_dye"
-  samples: "config/samples.tsv"
-  units: "config/units.tsv"
+samples: "config/samples.tsv"
+units: "config/units.tsv"
+
+studies: [
+  "light_vs_light_dye",
+]
+experiments: [
+  "mitoFAP",
+]
 
 gencode:
   protocol: "ftp"
@@ -52,17 +57,18 @@ rseqc:
 
 diffexp:
   methods: ["edger"]
-  experiments: ["mitoFAP"]
-  contrast: ["light", "light_dye"]
-  contrast_label: ["light", "light+dye"]
-  has_batches: false
-  qc_types: ["rle", "pca", "mds"]
-  qc_legend: "topright"
-  rle_ylim: [-2, 2]
+  conditions: [
+    ["light", "light_dye"],
+  ]
   fc: 1.1
   padj: 0.05
   padj_meth: BH
-
-heatmap:
-  fig_w: 7
-  fig_h: 8
+  qc:
+    types: ["rle", "pca", "mds"]
+    legend: "topright"
+    rle_ylim: [
+      [-2, 2]
+    ]
+  heatmap:
+    fig_w: 7
+    fig_h: 8

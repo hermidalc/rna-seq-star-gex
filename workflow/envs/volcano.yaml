@@ -1,0 +1,8 @@
+name: volcano
+channels:
+  - conda-forge
+  - bioconda
+  - nodefaults
+dependencies:
+  - bioconductor-biobase
+  - bioconductor-enhancedvolcano

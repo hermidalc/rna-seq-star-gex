@@ -18,9 +18,8 @@ REPORT_DIR = "report"
 configfile: join(CONFIG_DIR, "config.yaml")
 
 
-STUDY_NAME = config["study"]["name"]
-SAMPLE_CONFIG_FILE = config["study"]["samples"]
-UNIT_CONFIG_FILE = config["study"]["units"]
+SAMPLE_CONFIG_FILE = config["samples"]
+UNIT_CONFIG_FILE = config["units"]
 
 TEMP_DIR = config["tmp_dir"] if config["tmp_dir"] else gettempdir()
 
@@ -57,6 +56,12 @@ SAMPLE_LABELS = [
 
 EXPAND_PARAMS["sub_dir"] = [dirname(fq) for fq in UNIT_DF["fq1"]]
 
+STUDIES = config["studies"]
+EXPERIMENTS = config["experiments"]
+
+EXPAND_PARAMS["study"] = STUDIES
+EXPAND_PARAMS["experiment"] = [e.lower() for e in EXPERIMENTS]
+
 GENCODE_RESOURCES_DIR = join(RESOURCES_DIR, "gencode")
 STAR_RESOURCES_DIR = join(RESOURCES_DIR, "star")
 RSEQC_RESOURCES_DIR = join(RESOURCES_DIR, "rseqc")
@@ -74,8 +79,7 @@ FASTQ_EXT = config["fastq"]["ext"]
 FASTQ_PLATFORM = config["fastq"]["platform"]
 
 DIFFEXP_METHODS = config["diffexp"]["methods"]
-DIFFEXP_EXPERIMENTS = config["diffexp"]["experiments"]
-DIFFEXP_QC_TYPES = config["diffexp"]["qc_types"]
+DIFFEXP_QC_TYPES = config["diffexp"]["qc"]["types"]
 
 GENCODE_GENOME_NAME = f"gencode_{GENCODE_RELEASE}_{GENCODE_BUILD}"
 GENCODE_GENOME_SEQ_FILE = join(GENCODE_RESOURCES_DIR, f"{GENCODE_GENOME_NAME}.fa")
@@ -151,28 +155,27 @@ RSEQC_STRAND_INFO_FILE = join(
     RSEQC_RESULTS_DIR, f"{RUN_ID_WILDCARD_STR}_strand_info.txt"
 )
 
-COUNTS_RESULTS_DIR = join(RESULTS_DIR, "counts", STUDY_NAME)
-COUNT_MATRIX_FILE = join(COUNTS_RESULTS_DIR, f"{STUDY_NAME}_count_matrix.tsv")
-COUNT_ESET_FILE = join(COUNTS_RESULTS_DIR, f"{STUDY_NAME}_count_eset.rds")
+DATA_MATRIX_RESULTS_DIR = join(RESULTS_DIR, "data_matrix", "{study}")
+COUNT_MATRIX_FILE = join(DATA_MATRIX_RESULTS_DIR, "{study}_count_matrix.tsv")
+COUNT_ESET_FILE = join(DATA_MATRIX_RESULTS_DIR, "{study}_count_eset.rds")
 
 EXPAND_PARAMS["de_qc_meth"] = ["counts"] + DIFFEXP_METHODS
 EXPAND_PARAMS["de_qc_type"] = DIFFEXP_QC_TYPES
-
 EXPAND_PARAMS["de_meth"] = DIFFEXP_METHODS
-EXPAND_PARAMS["de_exp"] = [e.lower() for e in DIFFEXP_EXPERIMENTS]
 
-DIFFEXP_RESULTS_DIR = join(RESULTS_DIR, "diffexp", STUDY_NAME)
+DIFFEXP_RESULTS_DIR = join(RESULTS_DIR, "diffexp", "{study}")
+NORM_ESET_FILE = join(DIFFEXP_RESULTS_DIR, "{study}_{experiment}_{de_meth}_eset.rds")
 DIFFEXP_QC_PLOT_FILE = join(
-    DIFFEXP_RESULTS_DIR, f"{STUDY_NAME}_{{de_exp}}_{{de_qc_meth}}_{{de_qc_type}}.png"
+    DIFFEXP_RESULTS_DIR, "{study}_{experiment}_{de_qc_meth}_{de_qc_type}.png"
 )
 DIFFEXP_RESULTS_TABLE_FILE = join(
-    DIFFEXP_RESULTS_DIR, f"{STUDY_NAME}_{{de_exp}}_{{de_meth}}_results.tsv"
+    DIFFEXP_RESULTS_DIR, "{study}_{experiment}_{de_meth}_results.tsv"
 )
 DIFFEXP_VOLCANO_PLOT_FILE = join(
-    DIFFEXP_RESULTS_DIR, f"{STUDY_NAME}_{{de_exp}}_{{de_meth}}_volcano.png"
+    DIFFEXP_RESULTS_DIR, "{study}_{experiment}_{de_meth}_volcano.png"
 )
 DIFFEXP_HEATMAP_PLOT_FILE = join(
-    DIFFEXP_RESULTS_DIR, f"{STUDY_NAME}_{{de_exp}}_{{de_meth}}_heatmap.png"
+    DIFFEXP_RESULTS_DIR, "{study}_{experiment}_{de_meth}_heatmap.png"
 )
 
 GENCODE_LOG_DIR = join(LOG_DIR, "gencode")
@@ -183,8 +186,8 @@ STAR_INDEX_LOG_DIR = join(STAR_LOG_DIR, "index")
 STAR_ALIGN_LOG_DIR = join(STAR_LOG_DIR, "align", "{sub_dir}")
 RSEQC_LOG_DIR = join(LOG_DIR, "rseqc")
 RSEQC_OUTPUT_LOG_DIR = join(RSEQC_LOG_DIR, "{sub_dir}")
-COUNTS_LOG_DIR = join(LOG_DIR, "counts", STUDY_NAME)
-DIFFEXP_LOG_DIR = join(LOG_DIR, "diffexp", STUDY_NAME)
+DATA_MATRIX_LOG_DIR = join(LOG_DIR, "data_matrix", "{study}")
+DIFFEXP_LOG_DIR = join(LOG_DIR, "diffexp", "{study}")
 
 GENCODE_GENE_ANNOT_LOG = join(GENCODE_LOG_DIR, f"{GENCODE_GENOME_NAME}_gene_annot.log")
 
@@ -207,17 +210,21 @@ RSEQC_INFER_EXPERIMENT_LOG = join(
     RSEQC_OUTPUT_LOG_DIR, f"{RUN_ID_WILDCARD_STR}_infer_experiment.log"
 )
 
-COUNT_MATRIX_LOG = join(COUNTS_LOG_DIR, f"{STUDY_NAME}_count_matrix.log")
-COUNT_ESET_LOG = join(COUNTS_LOG_DIR, f"{STUDY_NAME}_count_eset.log")
+COUNT_MATRIX_LOG = join(DATA_MATRIX_LOG_DIR, "{study}_count_matrix.log")
+COUNT_ESET_LOG = join(DATA_MATRIX_LOG_DIR, "{study}_count_eset.log")
 
+NORM_ESET_LOG = join(DIFFEXP_LOG_DIR, "{study}_{experiment}_{de_meth}_eset.log")
 DIFFEXP_QC_LOG_FILE = join(
-    DIFFEXP_LOG_DIR, f"{STUDY_NAME}_{{de_exp}}_{{de_qc_meth}}_{{de_qc_type}}_qc.log"
+    DIFFEXP_LOG_DIR, "{study}_{experiment}_{de_qc_meth}_{de_qc_type}_qc.log"
 )
 DIFFEXP_RESULTS_LOG_FILE = join(
-    DIFFEXP_LOG_DIR, f"{STUDY_NAME}_{{de_exp}}_{{de_meth}}_results.log"
+    DIFFEXP_LOG_DIR, "{study}_{experiment}_{de_meth}_results.log"
+)
+DIFFEXP_VOLCANO_LOG_FILE = join(
+    DIFFEXP_LOG_DIR, "{study}_{experiment}_{de_meth}_volcano.log"
 )
 DIFFEXP_HEATMAP_LOG_FILE = join(
-    DIFFEXP_LOG_DIR, f"{STUDY_NAME}_{{de_exp}}_{{de_meth}}_heatmap.log"
+    DIFFEXP_LOG_DIR, "{study}_{experiment}_{de_meth}_heatmap.log"
 )
 
 GENCODE_GENOME_SEQ_WRAPPER = join(
@@ -259,7 +266,7 @@ include: join(RULES_DIR, "trim.smk")
 include: join(RULES_DIR, "read_length.smk")
 include: join(RULES_DIR, "align.smk")
 include: join(RULES_DIR, "strand_info.smk")
-include: join(RULES_DIR, "counts.smk")
+include: join(RULES_DIR, "data_matrix.smk")
 include: join(RULES_DIR, "diffexp.smk")
 
 
@@ -284,8 +291,9 @@ rule all:
         expand(STAR_READ_COUNT_FILE, zip, **EXPAND_PARAMS),
         expand(RSEQC_INFER_EXPERIMENT_FILE, zip, **EXPAND_PARAMS),
         expand(RSEQC_STRAND_INFO_FILE, zip, **EXPAND_PARAMS),
-        COUNT_MATRIX_FILE,
-        COUNT_ESET_FILE,
+        expand(COUNT_MATRIX_FILE, zip, **EXPAND_PARAMS),
+        expand(COUNT_ESET_FILE, zip, **EXPAND_PARAMS),
+        expand(NORM_ESET_FILE, **EXPAND_PARAMS),
         expand(DIFFEXP_QC_PLOT_FILE, **EXPAND_PARAMS),
         expand(DIFFEXP_RESULTS_TABLE_FILE, **EXPAND_PARAMS),
         expand(DIFFEXP_VOLCANO_PLOT_FILE, **EXPAND_PARAMS),
