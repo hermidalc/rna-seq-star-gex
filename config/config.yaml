@@ -1,6 +1,6 @@
 ---
 wrapper:
-  base_url: "file:///home/hermidalc/projects/github/hermidalc/snakemake-wrappers/"
+  base_url: "https://github.com/hermidalc/snakemake-wrappers/raw/main/"
 
 tmp_dir: "/tmp"
 
