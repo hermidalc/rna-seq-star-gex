@@ -34,7 +34,7 @@ fdata <- fData(eset)
 
 pdata$condition <- factor(pdata$condition, levels = conditions)
 
-if ("batch" %in% pdata) {
+if ("batch" %in% pdata && !any(is.na(pdata$batch))) {
     pdata$batch <- factor(pdata$batch)
     formula <- ~ batch + condition
 } else {
@@ -71,7 +71,8 @@ if (snakemake@params[["method"]] == "counts") {
     cpms <- cpm(dge, log = TRUE)
     cpms <- removeBatchEffect(
         cpms,
-        batch = pdata$Batch, design = model.matrix(~condition, data = pdata)
+        batch = pdata$batch,
+        design = model.matrix(~condition, data = pdata)
     )
     # no log as logCPMs can have negative values even with prior count
     cpms <- 2^cpms

@@ -40,7 +40,7 @@ if (snakemake@params[["method"]] %in% c("edger", "voom")) {
     f <- "padj"
 }
 
-if ("batch" %in% pdata) {
+if ("batch" %in% pdata && !any(is.na(pdata$batch))) {
     adata <- removeBatchEffect(
         adata,
         batch = pdata$batch

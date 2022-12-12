@@ -1,13 +1,13 @@
-sample_name	sample_label	condition	condition_label	experiment	study
-Experiment1_A_S1		A		Experiment1	A_vs_B
-Experiment1_A_S2		A		Experiment1	A_vs_B
-Experiment1_A_S3		A		Experiment1	A_vs_B
-Experiment1_B_S4		B		Experiment1	A_vs_B
-Experiment1_B_S5		B		Experiment1	A_vs_B
-Experiment1_B_S6		B		Experiment1	A_vs_B
-Experiment2_A_S7		A		Experiment2	A_vs_B
-Experiment2_A_S8		A		Experiment2	A_vs_B
-Experiment2_A_S9		A		Experiment2	A_vs_B
-Experiment2_B_S10		B		Experiment2	A_vs_B
-Experiment2_B_S11		B		Experiment2	A_vs_B
-Experiment2_B_S12		B		Experiment2	A_vs_B
+sample_name	sample_label	condition	condition_label	experiment	batch	study
+Experiment1_A_S1		A		Experiment1		A_vs_B
+Experiment1_A_S2		A		Experiment1		A_vs_B
+Experiment1_A_S3		A		Experiment1		A_vs_B
+Experiment1_B_S4		B		Experiment1		A_vs_B
+Experiment1_B_S5		B		Experiment1		A_vs_B
+Experiment1_B_S6		B		Experiment1		A_vs_B
+Experiment2_A_S7		A		Experiment2		A_vs_B
+Experiment2_A_S8		A		Experiment2		A_vs_B
+Experiment2_A_S9		A		Experiment2		A_vs_B
+Experiment2_B_S10		B		Experiment2		A_vs_B
+Experiment2_B_S11		B		Experiment2		A_vs_B
+Experiment2_B_3_S12		B		Experiment2		A_vs_B

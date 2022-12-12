@@ -23,7 +23,7 @@ fdata <- fData(eset)
 
 pdata$condition <- factor(pdata$condition, levels = conditions)
 
-if ("batch" %in% pdata) {
+if ("batch" %in% pdata && !any(is.na(pdata$batch))) {
     pdata$batch <- factor(pdata$batch)
     formula <- ~ batch + condition
 } else {
