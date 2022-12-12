@@ -13,10 +13,11 @@ samples: "config/samples.tsv"
 units: "config/units.tsv"
 
 studies: [
-  "light_vs_light_dye",
+  "A_vs_B",
 ]
 experiments: [
-  "mitoFAP",
+  "Experiment1",
+  "Experiment2",
 ]
 
 gencode:
@@ -58,7 +59,7 @@ rseqc:
 diffexp:
   methods: ["edger"]
   conditions: [
-    ["light", "light_dye"],
+    ["A", "B"],
   ]
   fc: 1.1
   padj: 0.05

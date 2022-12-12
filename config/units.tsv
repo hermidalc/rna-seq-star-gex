@@ -1,0 +1,13 @@
+sample_name	unit_name	fq1	fq2	sra	adapters	strandedness
+Experiment1_A_S1		Study_Sub_Directory/Experiment1_A_S1_R1_001.fastq.gz	Study_Sub_Directory/Experiment1_A_S1_R2_001.fastq.gz			
+Experiment1_A_S2		Study_Sub_Directory/Experiment1_A_S2_R1_001.fastq.gz	Study_Sub_Directory/Experiment1_A_S2_R2_001.fastq.gz			
+Experiment1_A_S3		Study_Sub_Directory/Experiment1_A_S3_R1_001.fastq.gz	Study_Sub_Directory/Experiment1_A_S3_R2_001.fastq.gz			
+Experiment1_B_S4		Study_Sub_Directory/Experiment1_B_S4_R1_001.fastq.gz	Study_Sub_Directory/Experiment1_B_S4_R2_001.fastq.gz			
+Experiment1_B_S5		Study_Sub_Directory/Experiment1_B_S5_R1_001.fastq.gz	Study_Sub_Directory/Experiment1_B_S5_R2_001.fastq.gz			
+Experiment1_B_S6		Study_Sub_Directory/Experiment1_B_S6_R1_001.fastq.gz	Study_Sub_Directory/Experiment1_B_S6_R2_001.fastq.gz			
+Experiment2_A_S7		Study_Sub_Directory/Experiment2_A_S7_R1_001.fastq.gz	Study_Sub_Directory/Experiment2_A_S7_R2_001.fastq.gz			
+Experiment2_A_S8		Study_Sub_Directory/Experiment2_A_S8_R1_001.fastq.gz	Study_Sub_Directory/Experiment2_A_S8_R2_001.fastq.gz			
+Experiment2_A_S9		Study_Sub_Directory/Experiment2_A_S9_R1_001.fastq.gz	Study_Sub_Directory/Experiment2_A_S9_R2_001.fastq.gz			
+Experiment2_B_S10		Study_Sub_Directory/Experiment2_B_S10_R1_001.fastq.gz	Study_Sub_Directory/Experiment2_B_S10_R2_001.fastq.gz			
+Experiment2_B_S11		Study_Sub_Directory/Experiment2_B_S11_R1_001.fastq.gz	Study_Sub_Directory/Experiment2_B_S11_R2_001.fastq.gz			
+Experiment2_B_S12		Study_Sub_Directory/Experiment2_B_S12_R1_001.fastq.gz	Study_Sub_Directory/Experiment2_B_S12_R2_001.fastq.gz			
