@@ -8,7 +8,8 @@ easily be extended to support more complex experimental designs and contrast
 matrices.
 
 Snakemake workflow rule graph below. For some reason with the latest version of
-Snakemake the `fastp_trim_fastq` rule isn't showing up in the rule graph
-because I a function with `unpack` to get raw and trimmed FASTQ inputs.
+Snakemake the `fastp_trim_fastq` workflow rule isn't showing up in the rule
+graph because I use a function with `unpack` to get raw and trimmed FASTQ
+inputs.
 
 ![Snakemake rule graph](rna-seq-star-gex.svg)
