@@ -1,4 +1,4 @@
-rule fastp:
+rule fastp_trim_fastq:
     input:
         unpack(lambda w: get_fq(w, trimmed=False)),
     params:
