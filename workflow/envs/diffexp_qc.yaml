@@ -1,4 +1,4 @@
-name: diffexp_qc
+name: diffexp-qc
 channels:
   - conda-forge
   - bioconda
