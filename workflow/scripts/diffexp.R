@@ -14,6 +14,7 @@ sink(log, type = "message")
 fig_dim <- 8
 fig_res <- 300
 
+method <- snakemake@params[["method"]]
 experiment <- snakemake@params[["experiment"]]
 conditions <- snakemake@params[["conditions"]]
 
@@ -41,7 +42,7 @@ if ("batch" %in% pdata && !any(is.na(pdata$batch))) {
 
 design <- model.matrix(formula, data = pdata)
 
-if (snakemake@params[["method"]] == "edger") {
+if (method == "edger") {
     dge <- DGEList(counts = counts, genes = fdata)
     dge <- dge[filterByExpr(dge, design), , keep.lib.sizes = FALSE]
     dge <- calcNormFactors(dge, method = "TMM")
@@ -55,7 +56,7 @@ if (snakemake@params[["method"]] == "edger") {
     results <- as.data.frame(
         topTags(glt, n = Inf, adjust.method = padj_meth, sort.by = "PValue")
     )
-} else if (snakemake@params[["method"]] == "deseq2") {
+} else if (method == "deseq2") {
     dds <- DESeqDataSetFromMatrix(counts, pdata, formula)
     mcols(dds) <- DataFrame(mcols(dds), fdata)
     dds <- dds[filterByExpr(counts, design), ]
@@ -88,7 +89,7 @@ if (snakemake@params[["method"]] == "edger") {
         results <- results[!is.na(results$pvalue), , drop = FALSE]
         results <- results[!is.na(results$padj), , drop = FALSE]
     }
-} else if (snakemake@params[["method"]] == "voom") {
+} else if (method == "voom") {
     dge <- DGEList(counts = counts, genes = fdata)
     dge <- dge[filterByExpr(dge, design), , keep.lib.sizes = FALSE]
     dge <- calcNormFactors(dge, method = "TMM")

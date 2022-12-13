@@ -12,6 +12,7 @@ sink(log, type = "message")
 fig_dim <- 8
 fig_res <- 300
 
+method <- snakemake@params[["method"]]
 experiment <- snakemake@params[["experiment"]]
 conditions <- snakemake@params[["conditions"]]
 
@@ -31,21 +32,21 @@ results <- read.delim(
     sep = "\t", header = TRUE, row.names = 1
 )
 
-if (snakemake@params[["method"]] == "edger") {
+if (method == "edger") {
     x <- "logFC"
     y <- "PValue"
     f <- "FDR"
     subtitle <- paste(
         "edgeR: TMM + QLFit +", ifelse(lfc > 0, "TREAT", "QLFTest")
     )
-} else if (snakemake@params[["method"]] == "deseq2") {
+} else if (method == "deseq2") {
     x <- "log2FoldChange"
     y <- "pvalue"
     f <- "padj"
     subtitle <- paste(
         "DESeq2: MOR + nbWaldtest", ifelse(lfc > 0, "+ lfcThreshold", "")
     )
-} else if (snakemake@params[["method"]] == "voom") {
+} else if (method == "voom") {
     x <- "logFC"
     y <- "P.Value"
     f <- "FDR"

@@ -11,6 +11,7 @@ log <- file(snakemake@log[[1]], open = "wt")
 sink(log)
 sink(log, type = "message")
 
+method <- snakemake@params[["method"]]
 experiment <- snakemake@params[["experiment"]]
 conditions <- snakemake@params[["conditions"]]
 
@@ -32,12 +33,12 @@ if ("batch" %in% pdata && !any(is.na(pdata$batch))) {
 
 design <- model.matrix(formula, data = pdata)
 
-if (snakemake@params[["method"]] %in% c("edger", "voom")) {
+if (method %in% c("edger", "voom")) {
     dge <- DGEList(counts = counts, genes = fdata)
     dge <- dge[filterByExpr(dge, design), , keep.lib.sizes = FALSE]
     dge <- calcNormFactors(dge, method = "TMM")
     adata <- cpm(dge, log = TRUE)
-} else if (snakemake@params[["method"]] == "deseq2") {
+} else if (method == "deseq2") {
     dds <- DESeqDataSetFromMatrix(counts, pdata, formula)
     dds <- dds[filterByExpr(counts, design), ]
     dds <- estimateSizeFactors(dds, quiet = TRUE)

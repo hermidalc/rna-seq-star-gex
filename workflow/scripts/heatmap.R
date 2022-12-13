@@ -17,6 +17,7 @@ fig_res <- 300
 fig_w <- snakemake@params[["fig_w"]]
 fig_h <- snakemake@params[["fig_h"]]
 
+method <- snakemake@params[["method"]]
 experiment <- snakemake@params[["experiment"]]
 conditions <- snakemake@params[["conditions"]]
 
@@ -34,9 +35,9 @@ results <- read.delim(
     sep = "\t", header = TRUE, row.names = 1
 )
 
-if (snakemake@params[["method"]] %in% c("edger", "voom")) {
+if (method %in% c("edger", "voom")) {
     f <- "FDR"
-} else if (snakemake@params[["method"]] == "deseq2") {
+} else if (method == "deseq2") {
     f <- "padj"
 }
 

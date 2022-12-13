@@ -20,6 +20,7 @@ cex_axis <- 0.4
 colors <- brewer.pal(6, "Set2")
 colors <- colors[1:2]
 
+method <- snakemake@params[["method"]]
 experiment <- snakemake@params[["experiment"]]
 conditions <- snakemake@params[["conditions"]]
 qc_legend <- snakemake@params[["qc_legend"]]
@@ -43,12 +44,12 @@ if ("batch" %in% pdata && !any(is.na(pdata$batch))) {
 
 design <- model.matrix(formula, data = pdata)
 
-if (snakemake@params[["method"]] == "counts") {
+if (method == "counts") {
     dge <- DGEList(counts = counts, genes = fdata)
     dge <- dge[filterByExpr(dge, design), , keep.lib.sizes = FALSE]
     mat <- dge$counts
     title <- "Counts"
-} else if (snakemake@params[["method"]] == "edger") {
+} else if (method == "edger") {
     dge <- DGEList(counts = counts, genes = fdata)
     dge <- dge[filterByExpr(dge, design), , keep.lib.sizes = FALSE]
     dge <- calcNormFactors(dge, method = "TMM")
@@ -56,7 +57,7 @@ if (snakemake@params[["method"]] == "counts") {
     cpms <- cpm(dge)
     mat <- cpms
     title <- "edgeR TMM"
-} else if (snakemake@params[["method"]] == "deseq2") {
+} else if (method == "deseq2") {
     dds <- DESeqDataSetFromMatrix(counts, pdata, formula)
     dds <- dds[filterByExpr(counts, design), ]
     dds <- estimateSizeFactors(dds, quiet = TRUE)
@@ -64,7 +65,7 @@ if (snakemake@params[["method"]] == "counts") {
     cpms <- cpm(counts(dds, normalized = TRUE))
     mat <- cpms
     title <- "DESeq2 MOR"
-} else if (snakemake@params[["method"]] == "limmarbe") {
+} else if (method == "limmarbe") {
     dge <- DGEList(counts = counts, genes = fdata)
     dge <- dge[filterByExpr(dge, design), , keep.lib.sizes = FALSE]
     dge <- calcNormFactors(dge, method = "TMM")
