@@ -198,6 +198,7 @@ RSEQC_LOG_DIR = join(LOG_DIR, "rseqc")
 RSEQC_OUTPUT_LOG_DIR = join(RSEQC_LOG_DIR, "{sub_dir}")
 DATA_MATRIX_LOG_DIR = join(LOG_DIR, "data_matrix", "{study}")
 DIFFEXP_LOG_DIR = join(LOG_DIR, "diffexp", "{study}")
+GSEA_LOG_DIR = join(LOG_DIR, "gsea", "{study}")
 
 GENCODE_GENE_ANNOT_LOG = join(GENCODE_LOG_DIR, f"{GENCODE_GENOME_NAME}_gene_annot.log")
 
@@ -235,6 +236,10 @@ DIFFEXP_VOLCANO_LOG_FILE = join(
 )
 DIFFEXP_HEATMAP_LOG_FILE = join(
     DIFFEXP_LOG_DIR, "{study}_{experiment}_{de_meth}_heatmap.log"
+)
+GSEA_MSIGDB_LOG_FILE = join(
+    GSEA_LOG_DIR,
+    "{study}_{experiment}_{de_meth}_msigdb_{msigdb}_gsea_results.log",
 )
 
 GENCODE_GENOME_SEQ_WRAPPER = join(

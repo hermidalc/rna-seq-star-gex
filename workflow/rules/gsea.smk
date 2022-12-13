@@ -53,6 +53,6 @@ rule gsea_msigdb:
     output:
         GSEA_MSIGDB_RESULTS_FILE,
     log:
-        READ_LENGTH_LOG,
+        GSEA_MSIGDB_LOG_FILE,
     script:
         "../scripts/gsea_msigdb.R"
