@@ -1,47 +1,47 @@
 ---
 wrapper:
-  base_url: "https://github.com/hermidalc/snakemake-wrappers/raw/main/"
+  base_url: https://github.com/hermidalc/snakemake-wrappers/raw/main/
 
-tmp_dir: "/tmp"
+tmp_dir: /tmp
 
 random_seed: 777
 
 download:
   retries: 5
 
-samples: "config/samples.tsv"
-units: "config/units.tsv"
+samples: config/samples.tsv
+units: config/units.tsv
 
-studies: [
-  "A_vs_B",
-]
-experiments: [
-  "Experiment1",
-  "Experiment2",
-]
+studies:
+  - A_vs_B
+experiments:
+  - Experiment1
+  - Experiment2
 
 gencode:
-  protocol: "ftp"
-  species: "mouse"
-  release: "M30"
-  build: "GRCm39"
-  regions: "PRI"
+  protocol: ftp
+  species: mouse
+  release: M30
+  build: GRCm39
+  regions: PRI
   annot:
-    fmt: "gtf"
+    fmt: gtf
   gene_annot:
-    length_col: "Length"
+    length_col: Length
 
 fastq:
-  data_dir: "data/fastq"
-  pairs: ["R1_001", "R2_001"]
-  ext: "fastq.gz"
-  platform: "Illumina"
+  data_dir: data/fastq
+  pairs:
+    - R1_001
+    - R2_001
+  ext: fastq.gz
+  platform: Illumina
 
 trim:
   activate: true
   fastp:
     threads: 8
-    extra_params: "--trim_poly_x --detect_adapter_for_pe --correction"
+    extra_params: --trim_poly_x --detect_adapter_for_pe --correction
 
 star:
   index:
@@ -57,19 +57,54 @@ rseqc:
     sample_size: 1e6
 
 diffexp:
-  methods: ["edger"]
-  conditions: [
-    ["A", "B"],
-  ]
+  methods:
+    - edger
+  conditions:
+    - A
+      B
   fc: 1.1
   padj: 0.05
   padj_meth: BH
   qc:
-    types: ["rle", "pca", "mds"]
-    legend: "topright"
+    types:
+      - rle
+      - pca
+      - mds
+    legend: topright
     rle_ylim: [
       [-2, 2]
     ]
   heatmap:
     fig_w: 7
     fig_h: 8
+
+gsea:
+  padj: 0.1
+  msigdb:
+    - category: H
+      subcategory: null
+      collapse: false
+    - category: C2
+      subcategory: CGP
+      collapse: true
+    - category: C2
+      subcategory: CP:KEGG
+      collapse: true
+    - category: C2
+      subcategory: CP:REACTOME
+      collapse: true
+    - category: C5
+      subcategory: GO:BP
+      collapse: true
+    - category: C5
+      subcategory: GO:CC
+      collapse: true
+    - category: C5
+      subcategory: GO:MF
+      collapse: true
+    - category: C7
+      subcategory: IMMUNESIGDB
+      collapse: true
+    - category: C8
+      subcategory: null
+      collapse: false

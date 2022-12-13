@@ -56,11 +56,8 @@ SAMPLE_LABELS = [
 
 EXPAND_PARAMS["sub_dir"] = [dirname(fq) for fq in UNIT_DF["fq1"]]
 
-STUDIES = config["studies"]
-EXPERIMENTS = config["experiments"]
-
-EXPAND_PARAMS["study"] = STUDIES
-EXPAND_PARAMS["experiment"] = [e.lower() for e in EXPERIMENTS]
+EXPAND_PARAMS["study"] = config["studies"]
+EXPAND_PARAMS["experiment"] = [e.lower() for e in config["experiments"]]
 
 GENCODE_RESOURCES_DIR = join(RESOURCES_DIR, "gencode")
 STAR_RESOURCES_DIR = join(RESOURCES_DIR, "star")
@@ -178,6 +175,19 @@ DIFFEXP_HEATMAP_PLOT_FILE = join(
     DIFFEXP_RESULTS_DIR, "{study}_{experiment}_{de_meth}_heatmap.png"
 )
 
+EXPAND_PARAMS["msigdb"] = [
+    db["category"].lower()
+    if db["subcategory"] is None
+    else (db["category"].lower() + "_" + db["subcategory"].lower().replace(":", "_"))
+    for db in config["gsea"]["msigdb"]
+]
+
+GSEA_RESULTS_DIR = join(RESULTS_DIR, "gsea", "{study}")
+GSEA_MSIGDB_RESULTS_FILE = join(
+    GSEA_RESULTS_DIR,
+    "{study}_{experiment}_{de_meth}_msigdb_{msigdb}_gsea_results.tsv",
+)
+
 GENCODE_LOG_DIR = join(LOG_DIR, "gencode")
 FASTP_LOG_DIR = join(LOG_DIR, "fastp", "{sub_dir}")
 READ_LENGTH_LOG_DIR = join(LOG_DIR, "read_length", "{sub_dir}")
@@ -268,6 +278,7 @@ include: join(RULES_DIR, "align.smk")
 include: join(RULES_DIR, "strand_info.smk")
 include: join(RULES_DIR, "data_matrix.smk")
 include: join(RULES_DIR, "diffexp.smk")
+include: join(RULES_DIR, "gsea.smk")
 
 
 wildcard_constraints:
@@ -298,6 +309,7 @@ rule all:
         expand(DIFFEXP_RESULTS_TABLE_FILE, **EXPAND_PARAMS),
         expand(DIFFEXP_VOLCANO_PLOT_FILE, **EXPAND_PARAMS),
         expand(DIFFEXP_HEATMAP_PLOT_FILE, **EXPAND_PARAMS),
+        expand(GSEA_MSIGDB_RESULTS_FILE, **EXPAND_PARAMS),
 
 
 def clean(*dirs):

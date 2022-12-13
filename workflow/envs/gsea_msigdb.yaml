@@ -1,0 +1,8 @@
+name: gsea-msigdb
+channels:
+  - conda-forge
+  - bioconda
+  - nodefaults
+dependencies:
+  - bioconductor-fgsea
+  - r-msigdbr=7.5.1
