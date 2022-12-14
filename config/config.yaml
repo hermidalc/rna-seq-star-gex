@@ -59,9 +59,9 @@ rseqc:
 diffexp:
   methods:
     - edger
-  conditions:
-    - A
-      B
+  conditions: [
+    [A, B]
+  ]
   fc: 1.1
   padj: 0.05
   padj_meth: BH
