@@ -1,11 +1,9 @@
-# rna-seq-star-gex
+# STAR + edgeR/DESeq2/limma-voom + GSEA RNA-seq gene expression analysis workflow
 
-STAR + edgeR/DESeq2/limma-voom RNA-seq gene expression analysis Snakemake
-workflow. Uses [fastp](https://github.com/OpenGene/fastp) for QC and trimming
-and [GENCODE](https://www.gencodegenes.org/) for the reference genome and
-annotations. It currently supports two group experimental conditions, but could
-easily be extended to support more complex experimental designs and contrast
-matrices.
+Uses [fastp](https://github.com/OpenGene/fastp) for FASTQ QC and trimming
+and [GENCODE](https://www.gencodegenes.org/) reference genome and annotations.
+It currently supports two-group experimental conditions, but could be extended
+to support more complex experimental designs and contrast matrices.
 
 Requires [Mamba/Conda](https://github.com/conda-forge/miniforge#mambaforge).
 Create and activate the workflow conda environment (which provides `snakemake`):
