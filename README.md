@@ -7,8 +7,8 @@ annotations. It currently supports two group experimental conditions, but could
 easily be extended to support more complex experimental designs and contrast
 matrices.
 
-Requires Mamba/Conda. Create and activate the workflow conda environment (which
-provides `snakemake`):
+Requires [Mamba/Conda](https://github.com/conda-forge/miniforge#mambaforge).
+Create and activate the workflow conda environment (which provides `snakemake`):
 
 ```bash
 mamba env create -f envs/rna-seq-star-gex.yaml
