@@ -35,6 +35,7 @@ fastq:
     - R1_001
     - R2_001
   ext: fastq.gz
+  # only used in STAR-generated BAM headers (no analysis is dependent on platform)
   platform: Illumina
 
 trim:
