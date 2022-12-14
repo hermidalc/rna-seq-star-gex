@@ -1,0 +1,7 @@
+name: merged-xlsx
+channels:
+  - conda-forge
+  - bioconda
+  - nodefaults
+dependencies:
+  - r-openxlsx

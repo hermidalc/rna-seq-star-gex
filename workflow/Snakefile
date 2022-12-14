@@ -175,6 +175,12 @@ DIFFEXP_HEATMAP_PLOT_FILE = join(
     DIFFEXP_RESULTS_DIR, "{study}_{experiment}_{de_meth}_heatmap.png"
 )
 
+MSIGDB_NAMES = [
+    db["category"]
+    if db["subcategory"] is None
+    else (db["category"] + " " + db["subcategory"]).replace(":", " ")
+    for db in config["gsea"]["msigdb"]
+]
 EXPAND_PARAMS["msigdb"] = [
     db["category"].lower()
     if db["subcategory"] is None
@@ -185,7 +191,11 @@ EXPAND_PARAMS["msigdb"] = [
 GSEA_RESULTS_DIR = join(RESULTS_DIR, "gsea", "{study}")
 GSEA_MSIGDB_RESULTS_FILE = join(
     GSEA_RESULTS_DIR,
-    "{study}_{experiment}_{de_meth}_msigdb_{msigdb}_gsea_results.tsv",
+    "{study}_{experiment}_{de_meth}_gsea_msigdb_{msigdb}_results.tsv",
+)
+GSEA_MSIGDB_MERGED_RESULTS_FILE = join(
+    GSEA_RESULTS_DIR,
+    "{study}_{experiment}_{de_meth}_gsea_msigdb_results.xlsx",
 )
 
 GENCODE_LOG_DIR = join(LOG_DIR, "gencode")
@@ -239,7 +249,11 @@ DIFFEXP_HEATMAP_LOG_FILE = join(
 )
 GSEA_MSIGDB_LOG_FILE = join(
     GSEA_LOG_DIR,
-    "{study}_{experiment}_{de_meth}_msigdb_{msigdb}_gsea_results.log",
+    "{study}_{experiment}_{de_meth}_gsea_msigdb_{msigdb}_results.log",
+)
+GSEA_MSIGDB_MERGED_LOG_FILE = join(
+    GSEA_LOG_DIR,
+    "{study}_{experiment}_{de_meth}_gsea_msigdb_results.log",
 )
 
 GENCODE_GENOME_SEQ_WRAPPER = join(
@@ -315,6 +329,7 @@ rule all:
         expand(DIFFEXP_VOLCANO_PLOT_FILE, **EXPAND_PARAMS),
         expand(DIFFEXP_HEATMAP_PLOT_FILE, **EXPAND_PARAMS),
         expand(GSEA_MSIGDB_RESULTS_FILE, **EXPAND_PARAMS),
+        expand(GSEA_MSIGDB_MERGED_RESULTS_FILE, **EXPAND_PARAMS),
 
 
 def clean(*dirs):

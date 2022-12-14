@@ -56,3 +56,18 @@ rule gsea_msigdb:
         GSEA_MSIGDB_LOG_FILE,
     script:
         "../scripts/gsea_msigdb.R"
+
+
+rule gsea_msigdb_merged:
+    conda:
+        "../envs/merged_xlsx.yaml"
+    input:
+        expand(GSEA_MSIGDB_RESULTS_FILE, **EXPAND_PARAMS),
+    params:
+        names=MSIGDB_NAMES,
+    output:
+        GSEA_MSIGDB_MERGED_RESULTS_FILE,
+    log:
+        GSEA_MSIGDB_MERGED_LOG_FILE,
+    script:
+        "../scripts/merged_xlsx.R"
