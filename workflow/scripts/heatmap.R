@@ -35,10 +35,12 @@ results <- read.delim(
     sep = "\t", header = TRUE, row.names = 1
 )
 
-if (method %in% c("edger", "voom")) {
+if (method == "edger") {
     f <- "FDR"
 } else if (method == "deseq2") {
     f <- "padj"
+} else if (method == "voom") {
+    f <- "adj.P.Val"
 }
 
 if ("batch" %in% pdata && !any(is.na(pdata$batch))) {
@@ -112,7 +114,7 @@ ht <- Heatmap(
         legend_width = unit(20, "mm"),
         direction = "horizontal"
     ),
-    top_annotation = HeatmapAnnotation(
+    bottom_annotation = HeatmapAnnotation(
         condition = factor(
             pdata$condition,
             levels = conditions, labels = condition_labels

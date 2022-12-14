@@ -27,17 +27,23 @@ results <- read.delim(
 )
 
 if (de_meth == "edger") {
-    lfc <- "logFC"
-    pval <- "PValue"
+    lf <- "logFC"
+    pv <- "PValue"
 } else if (de_meth == "deseq2") {
-    lfc <- "log2FoldChange"
-    pval <- "pvalue"
+    lf <- "log2FoldChange"
+    pv <- "pvalue"
+    # fix zero p-values
+    results[[pv]] <- ifelse(
+        results[[pv]] > 0,
+        results[[pv]],
+        results[[pv]][results[[pv]] > 0][1] * 0.1
+    )
 } else if (de_meth == "voom") {
-    lfc <- "logFC"
-    pval <- "P.Value"
+    lf <- "logFC"
+    pv <- "P.Value"
 }
 
-ranks <- results[[lfc]] * -log10(results[[pval]])
+ranks <- results[[lf]] * -log10(results[[pv]])
 
 msigdb_ranks <- ranks
 if ("Symbol" %in% colnames(results)) {

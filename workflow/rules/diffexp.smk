@@ -85,7 +85,6 @@ rule diffexp_volcano:
         ],
         fc=config["diffexp"]["fc"],
         padj=config["diffexp"]["padj"],
-        padj_meth=config["diffexp"]["padj_meth"],
     output:
         DIFFEXP_VOLCANO_PLOT_FILE,
     log:

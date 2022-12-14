@@ -18,7 +18,6 @@ conditions <- snakemake@params[["conditions"]]
 
 fc <- snakemake@params[["fc"]]
 padj <- snakemake@params[["padj"]]
-padj_meth <- snakemake@params[["padj_meth"]]
 
 lfc <- log2(fc)
 
@@ -46,10 +45,14 @@ if (method == "edger") {
     subtitle <- paste(
         "DESeq2: MOR + nbWaldtest", ifelse(lfc > 0, "+ lfcThreshold", "")
     )
+    # fix zero p-values
+    results[[y]] <- ifelse(
+        results[[y]] > 0, results[[y]], results[[y]][results[[y]] > 0][1] * 0.1
+    )
 } else if (method == "voom") {
     x <- "logFC"
     y <- "P.Value"
-    f <- "FDR"
+    f <- "adj.P.Val"
     subtitle <- paste(
         "limma-voom: TMM + lmFit +", ifelse(lfc > 0, "TREAT", "eBayes")
     )
@@ -81,8 +84,8 @@ EnhancedVolcano(
         + head(results[[y]][results[[f]] > padj], n = 1)
     ) / 2,
     FCcutoff = lfc,
-    pointSize = 3.0,
-    labSize = 3.5,
+    pointSize = 3,
+    labSize = 3,
     labFace = "bold",
     drawConnectors = FALSE,
     widthConnectors = 1,

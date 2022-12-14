@@ -59,6 +59,8 @@ rseqc:
 diffexp:
   methods:
     - edger
+    - deseq2
+    - voom
   conditions: [
     [A, B]
   ]

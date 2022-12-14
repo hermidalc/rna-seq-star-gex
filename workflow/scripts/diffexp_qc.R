@@ -21,6 +21,7 @@ colors <- brewer.pal(6, "Set2")
 colors <- colors[1:2]
 
 method <- snakemake@params[["method"]]
+type <- snakemake@params[["type"]]
 experiment <- snakemake@params[["experiment"]]
 conditions <- snakemake@params[["conditions"]]
 qc_legend <- snakemake@params[["qc_legend"]]
@@ -49,7 +50,7 @@ if (method == "counts") {
     dge <- dge[filterByExpr(dge, design), , keep.lib.sizes = FALSE]
     mat <- dge$counts
     title <- "Counts"
-} else if (method == "edger") {
+} else if (method %in% c("edger", "voom")) {
     dge <- DGEList(counts = counts, genes = fdata)
     dge <- dge[filterByExpr(dge, design), , keep.lib.sizes = FALSE]
     dge <- calcNormFactors(dge, method = "TMM")
@@ -86,20 +87,20 @@ png(
     width = fig_dim, height = fig_dim, units = "in", res = fig_res
 )
 
-if (snakemake@params[["type"]] == "rle") {
+if (type == "rle") {
     plotRLE(
         mat,
         col = colors[as.integer(pdata$condition)],
         outline = FALSE, ylim = ylim, las = 2, cex.axis = cex_axis
     )
-} else if (snakemake@params[["type"]] == "pca") {
+} else if (type == "pca") {
     plotPCA(
         mat,
         col = colors[as.integer(pdata$condition)], cex = 0.6
     )
-} else if (snakemake@params[["type"]] == "mds") {
+} else if (type == "mds") {
     # plotMDS part of edgeR - pass dge directly knows what to do
-    if (snakemake@params[["method"]] == "edger") {
+    if (method == "edger") {
         mat <- dge
     }
     plotMDS(
@@ -108,7 +109,7 @@ if (snakemake@params[["type"]] == "rle") {
     )
 }
 
-title(paste(experiment, title, str_to_upper(snakemake@params[["type"]])))
+title(paste(experiment, title, str_to_upper(type)))
 legend(
     qc_legend,
     legend = unique(pdata$condition_label),

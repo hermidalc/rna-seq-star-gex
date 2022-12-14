@@ -62,7 +62,11 @@ rule gsea_msigdb_merged:
     conda:
         "../envs/merged_xlsx.yaml"
     input:
-        expand(GSEA_MSIGDB_RESULTS_FILE, **EXPAND_PARAMS),
+        expand(
+            GSEA_MSIGDB_RESULTS_FILE,
+            msigdb=EXPAND_PARAMS["msigdb"],
+            allow_missing=True,
+        ),
     params:
         names=MSIGDB_NAMES,
     output:
