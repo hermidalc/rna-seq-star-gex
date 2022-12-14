@@ -5,4 +5,5 @@ channels:
   - nodefaults
 dependencies:
   - bioconductor-fgsea
+  - r-data.table
   - r-msigdbr=7.5.1

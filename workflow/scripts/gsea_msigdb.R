@@ -1,4 +1,5 @@
 suppressPackageStartupMessages({
+    library(data.table)
     library(fgsea)
     library(msigdbr)
 })
@@ -26,14 +27,14 @@ results <- read.delim(
 )
 
 if (de_meth == "edger") {
-    pval <- "logFC"
-    lfc <- "PValue"
+    lfc <- "logFC"
+    pval <- "PValue"
 } else if (de_meth == "deseq2") {
-    pval <- "log2FoldChange"
-    lfc <- "pvalue"
+    lfc <- "log2FoldChange"
+    pval <- "pvalue"
 } else if (de_meth == "voom") {
-    pval <- "logFC"
-    lfc <- "P.Value"
+    lfc <- "logFC"
+    pval <- "P.Value"
 }
 
 ranks <- results[[lfc]] * -log10(results[[pval]])
@@ -52,12 +53,14 @@ msigdbr_df <- msigdbr(
     species = species, category = db_cat, subcategory = db_sub
 )
 msigdb_pathways <- split(x = msigdbr_df$gene_symbol, f = msigdbr_df$gs_name)
+
 set.seed(seed)
 fgsea_res <- fgsea(
     pathways = msigdb_pathways, stats = msigdb_ranks,
-    minSize = 15, maxSize = 500, eps = 0.0, nPermSimple = 10000
+    minSize = 15, maxSize = 500, eps = 0.0, nPermSimple = 10000, nproc = 1
 )
 fgsea_res <- fgsea_res[order(pval)][padj < gsea_padj]
+
 if (collapse) {
     msigdb_collapsed_pathways <- collapsePathways(
         fgsea_res, msigdb_pathways, msigdb_ranks
@@ -66,6 +69,7 @@ if (collapse) {
         pathway %in% msigdb_collapsed_pathways$mainPathways
     ]
 }
+
 fwrite(
     fgsea_res,
     file = snakemake@output[[1]],
