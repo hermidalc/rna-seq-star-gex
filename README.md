@@ -5,6 +5,9 @@ and [GENCODE](https://www.gencodegenes.org/) reference genome and annotations.
 It currently supports two-group experimental conditions, but could be extended
 to support more complex experimental designs and contrast matrices.
 
+Automatically uses wrappers from my personal
+(Snakemake wrappers repository)[https://github.com/hermidalc/snakemake-wrappers/]
+
 Requires [Mamba/Conda](https://github.com/conda-forge/miniforge#mambaforge).
 Create and activate the workflow conda environment (which provides `snakemake`):
 
