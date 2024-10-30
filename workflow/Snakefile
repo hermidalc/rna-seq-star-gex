@@ -132,9 +132,11 @@ STAR_ALIGN_PASS1_SJ_FILE = join(STAR_ALIGN_PASS1_DIR, "SJ.out.tab")
 STAR_ALIGN_PASS1_SJ_FILTERED_FILE = join(STAR_ALIGN_PASS1_DIR, "SJ.filtered.out.tab")
 STAR_BAM_FILE = join(
     STAR_ALIGN_PASS2_DIR,
-    "Aligned.sortedByCoord.out.bam"
-    if config["star"]["align"]["sort_bam"]
-    else "Aligned.out.bam",
+    (
+        "Aligned.sortedByCoord.out.bam"
+        if config["star"]["align"]["sort_bam"]
+        else "Aligned.out.bam"
+    ),
 )
 STAR_READ_COUNT_FILE = join(STAR_ALIGN_PASS2_DIR, "ReadsPerGene.out.tab")
 STAR_SAM_ATTR_RG_LINE = (
@@ -176,15 +178,21 @@ DIFFEXP_HEATMAP_PLOT_FILE = join(
 )
 
 MSIGDB_NAMES = [
-    db["category"]
-    if db["subcategory"] is None
-    else (db["category"] + " " + db["subcategory"]).replace(":", " ")
+    (
+        db["category"]
+        if db["subcategory"] is None
+        else (db["category"] + " " + db["subcategory"]).replace(":", " ")
+    )
     for db in config["gsea"]["msigdb"]
 ]
 EXPAND_PARAMS["msigdb"] = [
-    db["category"].lower()
-    if db["subcategory"] is None
-    else (db["category"].lower() + "_" + db["subcategory"].lower().replace(":", "_"))
+    (
+        db["category"].lower()
+        if db["subcategory"] is None
+        else (
+            db["category"].lower() + "_" + db["subcategory"].lower().replace(":", "_")
+        )
+    )
     for db in config["gsea"]["msigdb"]
 ]
 
